@@ -27,7 +27,8 @@ export function Sidebar({ className }: SidebarProps) {
   const clientNavItems = [
     { name: "Home", icon: Home, href: "/" },
     { name: "Dashboard", icon: TrendingUp, href: "/dashboard" },
-    { name: "Allenamenti", icon: Dumbbell, href: "/trainings" },
+    { name: "Catalogo", icon: Dumbbell, href: "/trainings" },
+    { name: "I Miei Allenamenti", icon: Dumbbell, href: "/my-trainings" },
     { name: "Consulenze", icon: Calendar, href: "/consultations" },
     { name: "Progressi", icon: TrendingUp, href: "/progress" },
     { name: "Messaggi", icon: MessageSquare, href: "/messages" },

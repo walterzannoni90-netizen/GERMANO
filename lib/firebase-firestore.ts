@@ -4,6 +4,7 @@ import {
   getDoc,
   getDocs,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -31,6 +32,25 @@ export async function updateUser(uid: string, data: Partial<any>) {
 
 export async function deleteUser(uid: string) {
   await deleteDoc(doc(db, "users", uid));
+}
+
+// === PURCHASES (user's purchased training IDs) ===
+export async function getUserPurchases(uid: string) {
+  const q = query(collection(db, "users", uid, "purchases"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function addUserPurchase(uid: string, trainingId: string) {
+  await setDoc(doc(db, "users", uid, "purchases", trainingId), {
+    trainingId,
+    purchasedAt: serverTimestamp(),
+  });
+}
+
+export async function hasUserPurchased(uid: string, trainingId: string) {
+  const snap = await getDoc(doc(db, "users", uid, "purchases", trainingId));
+  return snap.exists();
 }
 
 // === TRAININGS ===
@@ -409,6 +429,66 @@ export async function getUserPaymentMethods(userId: string) {
 
 export async function addPaymentMethod(data: Omit<PaymentMethod, "id" | "createdAt">) {
   return await addDoc(paymentMethodsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+// === WORKOUT PROGRAMS (Schede) ===
+export interface WorkoutExercise {
+  name: string;
+  muscleGroup: string;
+  sets: string;
+  reps: string;
+  rest: string;
+  notes?: string;
+  isSuperset?: boolean;
+}
+
+export interface WorkoutDay {
+  dayNumber: number;
+  name?: string;
+  exercises: WorkoutExercise[];
+}
+
+export interface WorkoutProgram {
+  id?: string;
+  title: string;
+  subtitle: string;
+  goal: string;
+  level: string;
+  target: string;
+  location: string;
+  sessionsPerWeek: number;
+  totalWeeks: number;
+  price: number;
+  image: string;
+  description: string;
+  active: boolean;
+  days: WorkoutDay[];
+  createdAt?: any;
+}
+
+const programsCol = collection(db, "workoutPrograms");
+
+export async function getWorkoutPrograms() {
+  const q = query(programsCol, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as WorkoutProgram));
+}
+
+export async function getWorkoutProgram(id: string) {
+  const snap = await getDoc(doc(db, "workoutPrograms", id));
+  return snap.exists() ? ({ id: snap.id, ...snap.data() } as WorkoutProgram) : null;
+}
+
+export async function createWorkoutProgram(data: Omit<WorkoutProgram, "id" | "createdAt">) {
+  return await addDoc(programsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+export async function updateWorkoutProgram(id: string, data: Partial<WorkoutProgram>) {
+  await updateDoc(doc(db, "workoutPrograms", id), data);
+}
+
+export async function deleteWorkoutProgram(id: string) {
+  await deleteDoc(doc(db, "workoutPrograms", id));
 }
 
 // === WORKOUT LOGS ===
