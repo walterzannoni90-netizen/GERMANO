@@ -25,7 +25,9 @@ function DetailContent() {
       try {
         const p = await getWorkoutProgram(id);
         setProgram(p);
-        if (user && p) {
+        const admin = userData?.role === "admin";
+        if (admin) { setIsPurchased(true); }
+        else if (user && p) {
           const purchased = await hasUserPurchased(user.uid, p.id!);
           setIsPurchased(purchased);
         }
@@ -35,7 +37,7 @@ function DetailContent() {
         setLoading(false);
       }
     })();
-  }, [id, user]);
+  }, [id, user, userData]);
 
   const handlePurchase = async () => {
     if (!user || !program || !userData) return;

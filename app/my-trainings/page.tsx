@@ -33,7 +33,8 @@ export default function MyTrainingsPage() {
     })();
   }, [user]);
 
-  const myPrograms = programs.filter(p => purchased.includes(p.id!));
+  const isAdmin = userData?.role === "admin";
+  const myPrograms = isAdmin ? programs : programs.filter(p => purchased.includes(p.id!));
 
   if (!user) {
     return (

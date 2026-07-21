@@ -77,7 +77,8 @@ export function ProgramsList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {programs.map(program => {
-        const isPurchased = purchased.includes(program.id!);
+        const isAdmin = userData?.role === "admin";
+        const isPurchased = isAdmin || purchased.includes(program.id!);
         return (
           <Card key={program.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300">
             <div className="relative h-48 overflow-hidden">
