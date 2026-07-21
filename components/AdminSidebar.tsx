@@ -9,6 +9,7 @@ import {
   Dumbbell,
   CalendarCheck,
   CreditCard,
+  Image as ImageIconLucide,
   Settings,
   LogOut,
   ChevronLeft,
@@ -22,6 +23,7 @@ const navItems = [
   { name: "Allenamenti", href: "/admin/trainings", icon: Dumbbell },
   { name: "Consulenze", href: "/admin/consultations", icon: CalendarCheck },
   { name: "Pagamenti", href: "/admin/payments", icon: CreditCard },
+  { name: "Contenuti sito", href: "/admin/content", icon: ImageIconLucide },
   { name: "Impostazioni", href: "/admin/settings", icon: Settings },
 ];
 

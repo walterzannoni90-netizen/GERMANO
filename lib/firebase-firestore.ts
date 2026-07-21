@@ -561,3 +561,19 @@ export async function getUserOrders(userId: string) {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
 }
+
+// === SITE CONTENT (marketing/static images stored as data URLs; doc id = slot key) ===
+export async function getSiteContent(key: string): Promise<string | null> {
+  const snap = await getDoc(doc(db, "siteContent", key));
+  if (!snap.exists()) return null;
+  const image = (snap.data() as any).image;
+  return typeof image === "string" && image ? image : null;
+}
+
+export async function saveSiteContent(key: string, imageDataUrl: string): Promise<void> {
+  await setDoc(
+    doc(db, "siteContent", key),
+    { image: imageDataUrl, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
+}

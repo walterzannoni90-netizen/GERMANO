@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
-import { getConsultations, Consultation } from "@/lib/firebase-firestore";
+import { getConsultations, getSiteContent, Consultation } from "@/lib/firebase-firestore";
 
 export function ConsultationList() {
   const [consultants, setConsultants] = useState<any[]>([]);
@@ -31,7 +31,18 @@ export function ConsultationList() {
           acc[key].reviews += 1;
           return acc;
         }, {});
-        setConsultants(Object.values(grouped));
+        const groupedList = Object.values(grouped) as any[];
+        const withOverrides = await Promise.all(
+          groupedList.map(async (consultant: any) => {
+            try {
+              const override = await getSiteContent(`consultant-${consultant.name}`);
+              return override ? { ...consultant, image: override } : consultant;
+            } catch {
+              return consultant;
+            }
+          })
+        );
+        setConsultants(withOverrides);
       } catch (e) {
         console.error("Error loading consultations:", e);
       } finally {
