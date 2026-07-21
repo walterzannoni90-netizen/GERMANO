@@ -5,13 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit3, Trash2, Star } from "lucide-react";
+import { Plus, Trash2, Star } from "lucide-react";
 import {
   getTrainings,
   createTraining,
   updateTraining,
   deleteTraining,
+  uploadFile,
 } from "@/lib/firebase-firestore";
+
+const DEFAULT_IMAGE =
+  "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop";
 
 interface TrainingItem {
   id: string;
@@ -22,7 +26,11 @@ interface TrainingItem {
   price?: number;
   rating?: number;
   active?: boolean;
+  image?: string;
 }
+
+const fileInputClass =
+  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500";
 
 export default function AdminTrainings() {
   const [trainings, setTrainings] = useState<TrainingItem[]>([]);
@@ -31,33 +39,46 @@ export default function AdminTrainings() {
   const [newDuration, setNewDuration] = useState("");
   const [newLevel, setNewLevel] = useState("Intermedio");
   const [newPrice, setNewPrice] = useState("");
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   useEffect(() => {
     getTrainings().then((data) => setTrainings(data as TrainingItem[]));
   }, []);
 
   const handleCreate = async () => {
-    if (!newTitle || !newPrice) return;
-    const created = await createTraining({
-      title: newTitle,
-      trainer: newTrainer || "Germano Team",
-      duration: newDuration || "30 min",
-      level: newLevel,
-      category: "Generale",
-      price: parseFloat(newPrice),
-      description: "",
-      image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop",
-      rating: 0,
-      active: true,
-    });
-    setTrainings((prev) => [
-      { id: created.id, title: newTitle, trainer: newTrainer || "Germano Team", duration: newDuration || "30 min", level: newLevel, price: parseFloat(newPrice), rating: 0, active: true },
-      ...prev,
-    ]);
-    setNewTitle("");
-    setNewTrainer("");
-    setNewDuration("");
-    setNewPrice("");
+    if (!newTitle || !newPrice || creating) return;
+    setCreating(true);
+    try {
+      let image = DEFAULT_IMAGE;
+      if (newImageFile) {
+        image = await uploadFile(`trainings/${Date.now()}-${newImageFile.name}`, newImageFile);
+      }
+      const created = await createTraining({
+        title: newTitle,
+        trainer: newTrainer || "Germano Team",
+        duration: newDuration || "30 min",
+        level: newLevel,
+        category: "Generale",
+        price: parseFloat(newPrice),
+        description: "",
+        image,
+        rating: 0,
+        active: true,
+      });
+      setTrainings((prev) => [
+        { id: created.id, title: newTitle, trainer: newTrainer || "Germano Team", duration: newDuration || "30 min", level: newLevel, price: parseFloat(newPrice), rating: 0, active: true, image },
+        ...prev,
+      ]);
+      setNewTitle("");
+      setNewTrainer("");
+      setNewDuration("");
+      setNewPrice("");
+      setNewImageFile(null);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const toggleActive = async (t: TrainingItem) => {
@@ -65,6 +86,19 @@ export default function AdminTrainings() {
     setTrainings((prev) =>
       prev.map((x) => (x.id === t.id ? { ...x, active: !x.active } : x))
     );
+  };
+
+  const handleChangeImage = async (t: TrainingItem, file: File) => {
+    setUploadingId(t.id);
+    try {
+      const url = await uploadFile(`trainings/${Date.now()}-${file.name}`, file);
+      await updateTraining(t.id, { image: url });
+      setTrainings((prev) =>
+        prev.map((x) => (x.id === t.id ? { ...x, image: url } : x))
+      );
+    } finally {
+      setUploadingId(null);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -101,8 +135,22 @@ export default function AdminTrainings() {
             </select>
             <Input placeholder="Prezzo (es. 19.99)" type="number" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} />
           </div>
-          <Button onClick={handleCreate} className="mt-4 bg-green-500 hover:bg-green-600 text-white rounded-full">
-            <Plus className="h-4 w-4 mr-2" /> Aggiungi allenamento
+          <div className="mt-4">
+            <label className="text-sm text-neutral-400 mb-1 block">Immagine (opzionale)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewImageFile(e.target.files?.[0] || null)}
+              className={fileInputClass}
+            />
+          </div>
+          <Button
+            onClick={handleCreate}
+            disabled={creating}
+            className="mt-4 bg-green-500 hover:bg-green-600 text-white rounded-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {creating ? "Caricamento..." : "Aggiungi allenamento"}
           </Button>
         </CardContent>
       </Card>
@@ -113,6 +161,7 @@ export default function AdminTrainings() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-neutral-800">
+                  <th className="text-left p-4 text-sm font-medium text-neutral-400">Immagine</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Titolo</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Trainer</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Durata</th>
@@ -125,6 +174,16 @@ export default function AdminTrainings() {
               <tbody>
                 {trainings.map((t) => (
                   <tr key={t.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition-colors">
+                    <td className="p-4">
+                      <img
+                        src={t.image || DEFAULT_IMAGE}
+                        alt={t.title || "Allenamento"}
+                        onError={(e) => {
+                          if (e.currentTarget.src !== DEFAULT_IMAGE) e.currentTarget.src = DEFAULT_IMAGE;
+                        }}
+                        className="h-12 w-12 rounded-lg object-cover"
+                      />
+                    </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-white">{t.title}</p>
@@ -148,10 +207,28 @@ export default function AdminTrainings() {
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => toggleActive(t)}>
+                        <label
+                          className={`inline-flex items-center justify-center whitespace-nowrap rounded-full h-9 px-3 text-xs font-medium transition-all cursor-pointer hover:bg-neutral-800 hover:text-neutral-50 ${
+                            uploadingId === t.id ? "opacity-50 pointer-events-none" : ""
+                          }`}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingId === t.id}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) handleChangeImage(t, f);
+                              e.target.value = "";
+                            }}
+                          />
+                          {uploadingId === t.id ? "Caricamento..." : "Cambia immagine"}
+                        </label>
+                        <Button variant="ghost" size="sm" onClick={() => toggleActive(t)} disabled={uploadingId === t.id}>
                           {t.active !== false ? "Nascondi" : "Mostra"}
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(t.id)} className="text-red-400">
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(t.id)} disabled={uploadingId === t.id} className="text-red-400">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -160,7 +237,7 @@ export default function AdminTrainings() {
                 ))}
                 {trainings.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-neutral-500">
+                    <td colSpan={8} className="p-8 text-center text-neutral-500">
                       Nessun allenamento trovato. Aggiungine uno sopra.
                     </td>
                   </tr>

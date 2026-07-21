@@ -8,6 +8,9 @@ import { Clock, Target, MapPin, ChevronRight, Dumbbell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getWorkoutPrograms, getWorkoutProgram, getUserPurchases, type WorkoutProgram } from "@/lib/firebase-firestore";
 
+const IMAGE_FALLBACK =
+  "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop";
+
 export default function MyTrainingsPage() {
   const { user, userData } = useAuth();
   const router = useRouter();
@@ -92,7 +95,14 @@ export default function MyTrainingsPage() {
         {myPrograms.map(program => (
           <Card key={program.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300 cursor-pointer" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
             <div className="relative h-48 overflow-hidden">
-              <img src={program.image} alt={program.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+              <img
+                src={program.image || IMAGE_FALLBACK}
+                alt={program.title}
+                onError={(e) => {
+                  if (e.currentTarget.src !== IMAGE_FALLBACK) e.currentTarget.src = IMAGE_FALLBACK;
+                }}
+                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+              />
               <div className="absolute top-3 right-3 flex gap-2">
                 <Badge variant="neutral">{program.level}</Badge>
                 <Badge variant="success">{program.sessionsPerWeek}gg/sett</Badge>

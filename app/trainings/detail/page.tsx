@@ -8,6 +8,9 @@ import { ArrowLeft, Clock, Target, MapPin, Dumbbell, CheckCircle, Lock } from "l
 import { useAuth } from "@/contexts/AuthContext";
 import { getWorkoutProgram, hasUserPurchased, addUserPurchase, createOrder, type WorkoutProgram, type WorkoutDay } from "@/lib/firebase-firestore";
 
+const IMAGE_FALLBACK =
+  "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop";
+
 function DetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -101,7 +104,14 @@ function DetailContent() {
       </button>
 
       <div className="relative h-64 rounded-2xl overflow-hidden">
-        <img src={program.image} alt={program.title} className="h-full w-full object-cover" />
+        <img
+          src={program.image || IMAGE_FALLBACK}
+          alt={program.title}
+          onError={(e) => {
+            if (e.currentTarget.src !== IMAGE_FALLBACK) e.currentTarget.src = IMAGE_FALLBACK;
+          }}
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute bottom-6 left-6">
           <div className="flex gap-2 mb-3">

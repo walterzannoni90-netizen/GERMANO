@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateUser } from "@/lib/firebase-firestore";
+import { updateUser, uploadFile } from "@/lib/firebase-firestore";
+import { updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
+const AVATAR_FALLBACK =
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80";
 
 export function UserProfile() {
-  const { user, userData } = useAuth();
+  const { user, userData, refreshUserData } = useAuth();
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +23,9 @@ export function UserProfile() {
   const [goal, setGoal] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoMessage, setPhotoMessage] = useState("");
 
   useEffect(() => {
     if (userData) {
@@ -31,6 +39,28 @@ export function UserProfile() {
       setGoal((userData as any).goal || "Perdere peso");
     }
   }, [userData]);
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingPhoto(true);
+    setPhotoMessage("");
+    try {
+      const url = await uploadFile(`avatars/${user.uid}-${Date.now()}`, file);
+      await updateUser(user.uid, { photoURL: url });
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL: url });
+      }
+      await refreshUserData();
+      setPhotoMessage("Foto aggiornata!");
+    } catch (err) {
+      console.error(err);
+      setPhotoMessage("Errore durante il caricamento della foto.");
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = "";
+    }
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -65,16 +95,33 @@ export function UserProfile() {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="relative">
             <img
-              src={user.photoURL || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80"}
+              src={userData?.photoURL || user.photoURL || AVATAR_FALLBACK}
               alt={`${name} ${surname}`}
+              onError={(e) => {
+                if (e.currentTarget.src !== AVATAR_FALLBACK) e.currentTarget.src = AVATAR_FALLBACK;
+              }}
               className="w-32 h-32 rounded-full object-cover"
+            />
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelect}
             />
             <Button
               variant="secondary"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={uploadingPhoto}
               className="absolute bottom-0 right-0 rounded-full bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0"
             >
               📷
             </Button>
+            {(uploadingPhoto || photoMessage) && (
+              <p className={`mt-2 text-xs ${photoMessage.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+                {uploadingPhoto ? "Caricamento..." : photoMessage}
+              </p>
+            )}
           </div>
           
           <div className="flex-1 space-y-4">
