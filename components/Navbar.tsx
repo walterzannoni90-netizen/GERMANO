@@ -27,7 +27,7 @@ export function Navbar({ className }: NavbarProps) {
       <nav className="hidden md:flex items-center gap-6">
         <Link href="/" className="text-sm font-medium text-white hover:text-green-500 transition-colors">Home</Link>
         <Link href="/trainings" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Programmi</Link>
-        {user && <Link href="/my-trainings" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">I Miei</Link>}
+        {user && <Link href="/my-trainings" className="text-sm font-medium text-green-400 hover:text-green-300 transition-colors">I Miei Programmi</Link>}
         <Link href="/consultations" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Consulenze</Link>
         {user && (
           <>
