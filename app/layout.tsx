@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 
@@ -19,15 +20,17 @@ export default function RootLayout({
   return (
     <html lang="it" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="flex h-screen overflow-hidden bg-dark">
-          <Sidebar />
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <Navbar />
-            <main className="flex-1 overflow-y-auto bg-dark p-4 md:p-6 lg:p-8">
-              {children}
-            </main>
+        <Providers>
+          <div className="flex h-screen overflow-hidden bg-dark">
+            <Sidebar />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              <Navbar />
+              <main className="flex-1 overflow-y-auto bg-dark p-4 md:p-6 lg:p-8">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </Providers>
       </body>
     </html>
   );

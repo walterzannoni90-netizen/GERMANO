@@ -1,12 +1,18 @@
-import * as React from "react";
+"use client";
+
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Bell, Menu, LogOut, Shield } from "lucide-react";
 
 interface NavbarProps {
   className?: string;
 }
 
 export function Navbar({ className }: NavbarProps) {
+  const { user, userData, isAdmin, logout } = useAuth();
+
   return (
     <header className={cn("sticky top-0 z-50 flex items-center justify-between px-4 py-3 md:px-6 bg-dark-surface/80 backdrop-blur-md border-b border-neutral-800", className)}>
       <div className="flex items-center gap-4">
@@ -17,34 +23,59 @@ export function Navbar({ className }: NavbarProps) {
           <span className="text-xl font-bold text-white hidden md:block">GERMANO</span>
         </div>
       </div>
-      
-      <nav className="flex items-center gap-4 md:gap-6">
-        <a href="#" className="text-sm font-medium text-white hover:text-green-500 transition-colors">Home</a>
-        <a href="#trainings" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Allenamenti</a>
-        <a href="#consultations" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Consulenze</a>
-        <a href="#progress" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Progressi</a>
-        <a href="#messages" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Messaggi</a>
+
+      <nav className="hidden md:flex items-center gap-6">
+        <Link href="/" className="text-sm font-medium text-white hover:text-green-500 transition-colors">Home</Link>
+        <Link href="/trainings" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Allenamenti</Link>
+        <Link href="/consultations" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Consulenze</Link>
+        {user && (
+          <>
+            <Link href="/dashboard" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Dashboard</Link>
+            <Link href="/progress" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Progressi</Link>
+            <Link href="/messages" className="text-sm font-medium text-neutral-400 hover:text-green-500 transition-colors">Messaggi</Link>
+            {isAdmin && (
+              <Link href="/admin" className="text-sm font-medium text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1">
+                <Shield className="h-4 w-4" /> Admin
+              </Link>
+            )}
+          </>
+        )}
       </nav>
-      
+
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <span className="sr-only">Notifiche</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-          </svg>
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <span className="sr-only">Menu</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" x2="20" y1="12" y2="12" />
-            <line x1="4" x2="20" y1="6" y2="6" />
-            <line x1="4" x2="20" y1="18" y2="18" />
-          </svg>
-        </Button>
-        <Button className="rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20">
-          Accedi
-        </Button>
+        {user ? (
+          <>
+            <Link href="/notifications">
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Bell className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/profile">
+              <div className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black">
+                  {userData?.name?.charAt(0) || user.email?.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm text-white hidden md:block">{userData?.name || "Profilo"}</span>
+              </div>
+            </Link>
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={logout}>
+              <LogOut className="h-5 w-5 text-neutral-400" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <Button variant="ghost" className="rounded-full text-white">
+                Accedi
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button className="rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20">
+                Registrati
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );
