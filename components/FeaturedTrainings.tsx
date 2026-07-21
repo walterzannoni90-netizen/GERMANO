@@ -1,32 +1,44 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const featuredTrainings = [
-  {
-    title: "Full Body HIIT",
-    trainer: "Mario Rossi",
-    duration: "45 min",
-    level: "Intermedio",
-    image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    title: "Yoga per Principianti",
-    trainer: "Giulia Bianchi",
-    duration: "30 min",
-    level: "Principiante",
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    title: "Strongman Foundation",
-    trainer: "Luca Verdi",
-    duration: "60 min",
-    level: "Avanzato",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop",
-  },
-];
+import { getTrainings, Training } from "@/lib/firebase-firestore";
 
 export function FeaturedTrainings() {
+  const [trainings, setTrainings] = useState<Training[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTrainings();
+        setTrainings(data.filter((t: any) => t.active !== false).slice(0, 3) as Training[]);
+      } catch (e) {
+        console.error("Error loading trainings:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="space-y-8">
+        <h2 className="text-3xl font-bold text-white">Allenamenti in evidenza</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="bg-neutral-900/50 border-neutral-800 animate-pulse">
+              <div className="h-48 bg-neutral-800" />
+              <CardHeader><div className="h-6 w-32 bg-neutral-800 rounded" /></CardHeader>
+            </Card>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="trainings" className="space-y-8">
       <div className="flex items-center justify-between">
@@ -37,11 +49,11 @@ export function FeaturedTrainings() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featuredTrainings.map((training, index) => (
-          <Card key={index} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/10">
+        {trainings.map((training, index) => (
+          <Card key={training.id || index} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/10">
             <div className="relative h-48 overflow-hidden">
               <img
-                src={training.image}
+                src={training.image || "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"}
                 alt={training.title}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
@@ -70,7 +82,7 @@ export function FeaturedTrainings() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                   </svg>
-                  4.8
+                  {training.rating || "4.8"}
                 </span>
               </div>
               <Button className="w-full bg-green-500 hover:bg-green-600 text-white">

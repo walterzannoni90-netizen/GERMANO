@@ -1,25 +1,49 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
-
-const trainings = [
-  { id: 1, title: "Full Body HIIT", trainer: "Mario Rossi", duration: "45 min", level: "Intermedio", price: "€19.99", rating: 4.8, image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop" },
-  { id: 2, title: "Yoga per Principianti", trainer: "Giulia Bianchi", duration: "30 min", level: "Principiante", price: "€14.99", rating: 4.9, image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop" },
-  { id: 3, title: "Strongman Foundation", trainer: "Luca Verdi", duration: "60 min", level: "Avanzato", price: "€24.99", rating: 4.7, image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop" },
-  { id: 4, title: "Abs & Core Blast", trainer: "Sofia Romano", duration: "25 min", level: "Intermedio", price: "€17.99", rating: 4.6, image: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=2070&auto=format&fit=crop" },
-  { id: 5, title: "Cardio Dance Fitness", trainer: "Marco Palermo", duration: "40 min", level: "Principiante", price: "€16.99", rating: 4.8, image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2070&auto=format&fit=crop" },
-  { id: 6, title: "Total Body Conditioning", trainer: "Elena Torino", duration: "50 min", level: "Intermedio", price: "€18.99", rating: 4.9, image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2070&auto=format&fit=crop" },
-];
+import { getTrainings, Training } from "@/lib/firebase-firestore";
 
 export function TrainingList() {
+  const [trainings, setTrainings] = useState<Training[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTrainings();
+        setTrainings(data.filter((t: any) => t.active !== false));
+      } catch (e) {
+        console.error("Error loading trainings:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <Card key={i} className="bg-neutral-900/50 border-neutral-800 animate-pulse">
+            <div className="h-48 bg-neutral-800" />
+            <CardHeader><div className="h-6 w-32 bg-neutral-800 rounded" /></CardHeader>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {trainings.map((training) => (
         <Card key={training.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300">
           <div className="relative h-48 overflow-hidden">
             <img
-              src={training.image}
+              src={training.image || "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"}
               alt={training.title}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
@@ -48,7 +72,7 @@ export function TrainingList() {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xl font-bold text-white">{training.price}</span>
+              <span className="text-xl font-bold text-white">€{(training.price || 0).toFixed(2)}</span>
               <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full">
                 Acquista ora
               </Button>
@@ -56,6 +80,11 @@ export function TrainingList() {
           </CardContent>
         </Card>
       ))}
+      {trainings.length === 0 && (
+        <div className="col-span-full text-center py-20 text-neutral-500">
+          Nessun allenamento disponibile al momento.
+        </div>
+      )}
     </div>
   );
 }

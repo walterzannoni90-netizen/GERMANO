@@ -1,33 +1,71 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client";
 
-const sessions = [
-  { title: "Full Body HIIT", trainer: "Mario Rossi", date: "Domani, 09:30", duration: "45 min", image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop" },
-  { title: "Yoga Serale", trainer: "Giulia Bianchi", date: "Mercoledì, 19:00", duration: "60 min", image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop" },
-  { title: "Consulenza Nutrizione", trainer: "Dr. Maria Verdi", date: "Giovedì, 14:00", duration: "30 min", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop" },
-];
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getConsultations } from "@/lib/firebase-firestore";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function UpcomingSessions() {
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const data = await getConsultations();
+        const upcoming = data
+          .filter((c: any) => c.clientId === user.uid && (c.status === "booked" || c.status === "available"))
+          .slice(0, 3);
+        setSessions(upcoming);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [user]);
+
+  if (!user) return null;
+
   return (
     <Card className="bg-neutral-900/50 border-neutral-800">
       <CardHeader>
         <CardTitle className="text-xl text-white">Prossimi appuntamenti</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {sessions.map((session, index) => (
-          <div key={index} className="flex gap-3 p-3 rounded-xl hover:bg-neutral-800/50 transition-colors">
-            <img src={session.image} alt={session.title} className="w-16 h-16 rounded-lg object-cover" />
-            <div className="flex-1">
-              <h4 className="font-semibold text-white text-sm">{session.title}</h4>
-              <p className="text-xs text-neutral-400 mb-1">{session.trainer}</p>
-              <div className="flex items-center gap-2 text-xs text-green-500">
-                <span>{session.date}</span>
-                <span>•</span>
-                <span>{session.duration}</span>
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-3 animate-pulse">
+              <div className="w-16 h-16 rounded-lg bg-neutral-800" />
+              <div className="flex-1 space-y-1">
+                <div className="h-4 w-32 bg-neutral-800 rounded" />
+                <div className="h-3 w-24 bg-neutral-800 rounded" />
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : sessions.length === 0 ? (
+          <p className="text-center text-neutral-500 py-8">Nessun appuntamento imminente.</p>
+        ) : (
+          sessions.map((session: any, index: number) => (
+            <div key={session.id || index} className="flex gap-3 p-3 rounded-xl hover:bg-neutral-800/50 transition-colors">
+              <img
+                src={session.image || "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"}
+                alt={session.title || session.professionalName || "Appuntamento"}
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+              <div className="flex-1">
+                <h4 className="font-semibold text-white text-sm">{session.title || session.professionalName || "Consulenza"}</h4>
+                <p className="text-xs text-neutral-400 mb-1">{session.professionalName || session.specialty}</p>
+                <div className="flex items-center gap-2 text-xs text-green-500">
+                  <span>{session.date ? new Date(session.date).toLocaleDateString("it-IT") : ""}</span>
+                  {session.time && <><span>•</span><span>{session.time}</span></>}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </CardContent>
     </Card>
   );

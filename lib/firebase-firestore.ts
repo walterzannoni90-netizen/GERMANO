@@ -22,7 +22,7 @@ import { storage } from "./firebase";
 export async function getAllUsers() {
   const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
 }
 
 export async function updateUser(uid: string, data: Partial<any>) {
@@ -55,7 +55,7 @@ const trainingsCol = collection(db, "trainings");
 export async function getTrainings() {
   const q = query(trainingsCol, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Training));
 }
 
 export async function getTraining(id: string) {
@@ -98,7 +98,7 @@ const consultationsCol = collection(db, "consultations");
 export async function getConsultations() {
   const q = query(consultationsCol, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Consultation));
 }
 
 export async function createConsultation(data: Omit<Consultation, "id" | "createdAt">) {
@@ -126,7 +126,7 @@ const ordersCol = collection(db, "orders");
 export async function getOrders() {
   const q = query(ordersCol, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
 }
 
 export async function createOrder(data: Omit<Order, "id" | "createdAt">) {
@@ -164,4 +164,279 @@ export async function getDashboardStats() {
   });
 
   return { totalUsers, totalTrainings, totalOrders, totalRevenue };
+}
+
+// === CONVERSATIONS ===
+export interface Conversation {
+  id?: string;
+  participants: string[];
+  participantNames: Record<string, string>;
+  participantImages: Record<string, string>;
+  lastMessage: string;
+  lastMessageTime: any;
+  unreadCount: Record<string, number>;
+  createdAt?: any;
+}
+
+const conversationsCol = collection(db, "conversations");
+
+export async function getUserConversations(userId: string) {
+  const q = query(conversationsCol, where("participants", "array-contains", userId), orderBy("lastMessageTime", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function getConversation(id: string) {
+  const snap = await getDoc(doc(db, "conversations", id));
+  return snap.exists() ? { id: snap.id, ...snap.data() } as Conversation : null;
+}
+
+export async function createConversation(data: Omit<Conversation, "id" | "createdAt">) {
+  return await addDoc(conversationsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+export async function updateConversation(id: string, data: Partial<Conversation>) {
+  await updateDoc(doc(db, "conversations", id), data);
+}
+
+// === MESSAGES ===
+export interface Message {
+  id?: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  createdAt: any;
+  read: boolean;
+}
+
+export async function getMessages(conversationId: string) {
+  const q = query(
+    collection(db, "conversations", conversationId, "messages"),
+    orderBy("createdAt", "asc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function sendMessage(conversationId: string, data: Omit<Message, "id" | "createdAt">) {
+  return await addDoc(collection(db, "conversations", conversationId, "messages"), {
+    ...data,
+    createdAt: serverTimestamp(),
+  });
+}
+
+// === NOTIFICATIONS ===
+export interface Notification {
+  id?: string;
+  userId: string;
+  type: "appointment" | "payment" | "message" | "progress" | "reminder";
+  title: string;
+  description: string;
+  read: boolean;
+  createdAt: any;
+}
+
+const notificationsCol = collection(db, "notifications");
+
+export async function getUserNotifications(userId: string) {
+  const q = query(notificationsCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function createNotification(data: Omit<Notification, "id" | "createdAt">) {
+  return await addDoc(notificationsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+export async function markNotificationRead(id: string) {
+  await updateDoc(doc(db, "notifications", id), { read: true });
+}
+
+// === MEASUREMENTS / PROGRESS ===
+export interface Measurement {
+  id?: string;
+  userId: string;
+  type: "weight" | "bodyFat" | "arm" | "waist" | "thigh" | "chest" | "steps";
+  value: number;
+  unit: string;
+  date: string;
+  createdAt?: any;
+}
+
+const measurementsCol = collection(db, "measurements");
+
+export async function getUserMeasurements(userId: string) {
+  const q = query(measurementsCol, where("userId", "==", userId), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function addMeasurement(data: Omit<Measurement, "id" | "createdAt">) {
+  return await addDoc(measurementsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+export async function getLatestMeasurements(userId: string) {
+  const q = query(measurementsCol, where("userId", "==", userId), orderBy("date", "desc"), limit(10));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+// === DOCUMENTS ===
+export interface UserDocument {
+  id?: string;
+  userId: string;
+  name: string;
+  type: "PDF" | "JPG" | "PNG" | "DOC";
+  category: "program" | "medical" | "receipt" | "consent" | "certificate";
+  fileUrl: string;
+  fileSize: string;
+  uploadedAt?: any;
+}
+
+const documentsCol = collection(db, "documents");
+
+export async function getUserDocuments(userId: string) {
+  const q = query(documentsCol, where("userId", "==", userId), orderBy("uploadedAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function addDocument(data: Omit<UserDocument, "id" | "uploadedAt">) {
+  return await addDoc(documentsCol, { ...data, uploadedAt: serverTimestamp() });
+}
+
+export async function deleteDocument(id: string) {
+  await deleteDoc(doc(db, "documents", id));
+}
+
+// === PROGRESS PHOTOS ===
+export interface ProgressPhoto {
+  id?: string;
+  userId: string;
+  photoUrl: string;
+  type: "before" | "after" | "progress";
+  date: string;
+  notes?: string;
+  uploadedAt?: any;
+}
+
+const progressPhotosCol = collection(db, "progressPhotos");
+
+export async function getUserProgressPhotos(userId: string) {
+  const q = query(progressPhotosCol, where("userId", "==", userId), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function addProgressPhoto(data: Omit<ProgressPhoto, "id" | "uploadedAt">) {
+  return await addDoc(progressPhotosCol, { ...data, uploadedAt: serverTimestamp() });
+}
+
+// === ACTIVITIES ===
+export interface Activity {
+  id?: string;
+  userId: string;
+  type: "workout" | "measurement" | "consultation" | "message" | "payment" | "achievement";
+  title: string;
+  description: string;
+  createdAt: any;
+}
+
+const activitiesCol = collection(db, "activities");
+
+export async function getUserActivities(userId: string) {
+  const q = query(activitiesCol, where("userId", "==", userId), orderBy("createdAt", "desc"), limit(10));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function createActivity(data: Omit<Activity, "id" | "createdAt">) {
+  return await addDoc(activitiesCol, { ...data, createdAt: serverTimestamp() });
+}
+
+// === SETTINGS ===
+export interface PlatformSettings {
+  id?: string;
+  platformName: string;
+  contactEmail: string;
+  stripePublicKey: string;
+  stripeSecretKey: string;
+  features: {
+    openRegistration: boolean;
+    loyaltyProgram: boolean;
+    emailNotifications: boolean;
+  };
+  updatedAt?: any;
+}
+
+const settingsCol = collection(db, "settings");
+
+export async function getSettings() {
+  const snap = await getDocs(settingsCol);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() } as PlatformSettings;
+}
+
+export async function saveSettings(data: Omit<PlatformSettings, "id" | "updatedAt">) {
+  const snap = await getDocs(settingsCol);
+  if (snap.empty) {
+    return await addDoc(settingsCol, { ...data, updatedAt: serverTimestamp() });
+  } else {
+    await updateDoc(doc(db, "settings", snap.docs[0].id), { ...data, updatedAt: serverTimestamp() });
+    return snap.docs[0].id;
+  }
+}
+
+// === PAYMENT METHODS ===
+export interface PaymentMethod {
+  id?: string;
+  userId: string;
+  type: string;
+  last4: string;
+  expiry: string;
+  isDefault: boolean;
+  createdAt?: any;
+}
+
+const paymentMethodsCol = collection(db, "paymentMethods");
+
+export async function getUserPaymentMethods(userId: string) {
+  const q = query(paymentMethodsCol, where("userId", "==", userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function addPaymentMethod(data: Omit<PaymentMethod, "id" | "createdAt">) {
+  return await addDoc(paymentMethodsCol, { ...data, createdAt: serverTimestamp() });
+}
+
+// === WORKOUT LOGS ===
+export interface WorkoutLog {
+  id?: string;
+  userId: string;
+  trainingId: string;
+  trainingName: string;
+  completedAt: any;
+  duration: number;
+  notes?: string;
+}
+
+const workoutLogsCol = collection(db, "workoutLogs");
+
+export async function getUserWorkoutLogs(userId: string) {
+  const q = query(workoutLogsCol, where("userId", "==", userId), orderBy("completedAt", "desc"), limit(20));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+}
+
+export async function createWorkoutLog(data: Omit<WorkoutLog, "id">) {
+  return await addDoc(workoutLogsCol, { ...data, completedAt: serverTimestamp() });
+}
+
+// === USER ORDERS (filtered) ===
+export async function getUserOrders(userId: string) {
+  const q = query(ordersCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
 }

@@ -1,12 +1,19 @@
+"use client";
+
+import { useAuth } from "@/contexts/AuthContext";
 import { RecentActivities } from "@/components/RecentActivities";
 import { UpcomingSessions } from "@/components/UpcomingSessions";
 import { ProgressOverview } from "@/components/ProgressOverview";
 
 export default function DashboardPage() {
+  const { userData } = useAuth();
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Benvenuto, Marco! 👋</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Benvenuto, {userData?.name || "Utente"}! 👋
+        </h1>
         <p className="text-neutral-400">Ecco il tuo riepilogo giornaliero.</p>
       </div>
       

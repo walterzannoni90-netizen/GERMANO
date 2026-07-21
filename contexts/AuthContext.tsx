@@ -17,6 +17,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   logout: () => Promise<void>;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAdmin: false,
   logout: async () => {},
+  refreshUserData: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -50,10 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await firebaseLogOut();
   };
 
+  const refreshUserData = async () => {
+    if (user) {
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    }
+  };
+
   const isAdmin = userData?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isAdmin, logout }}>
+    <AuthContext.Provider value={{ user, userData, loading, isAdmin, logout, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );

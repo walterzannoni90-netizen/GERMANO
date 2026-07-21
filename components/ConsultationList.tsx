@@ -1,18 +1,66 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
-
-const consultants = [
-  { id: 1, name: "Dr. Mario Rossi", specialty: "Personal Trainer", experience: "10 anni", rating: 4.9, reviews: 128, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80" },
-  { id: 2, name: "Giulia Bianchi", specialty: "Yoga & Pilates", experience: "8 anni", rating: 4.8, reviews: 96, image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80" },
-  { id: 3, name: "Dr. Luca Verdi", specialty: "Nutrizione", experience: "12 anni", rating: 5.0, reviews: 156, image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=600&auto=format&fit=crop&q=80" },
-  { id: 4, name: "Sofia Romano", specialty: "Fitness per Donne", experience: "6 anni", rating: 4.7, reviews: 84, image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80" },
-];
+import { getConsultations, Consultation } from "@/lib/firebase-firestore";
 
 export function ConsultationList() {
+  const [consultants, setConsultants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getConsultations();
+        const available = data.filter((c: any) => c.status === "available");
+        const grouped = available.reduce((acc: any, curr: any) => {
+          const key = curr.professionalName || curr.professionalId;
+          if (!acc[key]) {
+            acc[key] = {
+              id: curr.id,
+              name: curr.professionalName || "Professionista",
+              specialty: curr.specialty || "Fitness",
+              experience: "Esperto",
+              rating: 4.9,
+              reviews: 0,
+              image: curr.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
+            };
+          }
+          acc[key].reviews += 1;
+          return acc;
+        }, {});
+        setConsultants(Object.values(grouped));
+      } catch (e) {
+        console.error("Error loading consultations:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="bg-neutral-900/50 border-neutral-800 animate-pulse">
+            <div className="flex items-start gap-4 p-6">
+              <div className="w-16 h-16 rounded-full bg-neutral-800" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-40 bg-neutral-800 rounded" />
+                <div className="h-4 w-24 bg-neutral-800 rounded" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {consultants.map((consultant) => (
+      {consultants.map((consultant: any) => (
         <Card key={consultant.id} className="bg-neutral-900/50 border-neutral-800 hover:border-green-500/50 transition-all">
           <div className="flex items-start gap-4 p-6">
             <img
@@ -49,6 +97,11 @@ export function ConsultationList() {
           </div>
         </Card>
       ))}
+      {consultants.length === 0 && (
+        <div className="text-center py-20 text-neutral-500">
+          Nessuna consulenza disponibile al momento.
+        </div>
+      )}
     </div>
   );
 }

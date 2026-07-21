@@ -1,16 +1,46 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getUserConversations } from "@/lib/firebase-firestore";
+import { useAuth } from "@/contexts/AuthContext";
+import { onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-const conversations = [
-  { id: 1, name: "Mario Rossi", lastMessage: "Ecco il tuo programma settimanale", time: "10:30", unread: 2, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80" },
-  { id: 2, name: "Giulia Bianchi", lastMessage: "A che ora è la tua prossima lezione?", time: "09:15", unread: 0, image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80" },
-  { id: 3, name: "Dr. Luca Verdi", lastMessage: "Hai ricevuto i tuoi report", time: "Ieri", unread: 1, image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=600&auto=format&fit=crop&q=80" },
-  { id: 4, name: "Sofia Romano", lastMessage: "Nuovo messaggio automatico", time: "Ieri", unread: 0, image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80" },
-  { id: 5, name: "Team Germano", lastMessage: "Promemoria: Allenamento del giorno", time: "2 giorni", unread: 3, image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop&q=80" },
-];
+interface MessageSidebarProps {
+  onSelectConversation?: (id: string) => void;
+}
 
-export function MessageSidebar() {
+export function MessageSidebar({ onSelectConversation }: MessageSidebarProps) {
+  const { user } = useAuth();
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "conversations"),
+      where("participants", "array-contains", user.uid),
+      orderBy("lastMessageTime", "desc")
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setConversations(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    });
+    return () => unsub();
+  }, [user]);
+
+  if (!user) return null;
+
+  const otherParticipant = (conv: any) => {
+    const id = conv.participants?.find((p: string) => p !== user.uid) || "";
+    return {
+      name: conv.participantNames?.[id] || "Utente",
+      image: conv.participantImages?.[id] || "",
+    };
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-neutral-800">
@@ -26,30 +56,52 @@ export function MessageSidebar() {
       </div>
       
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        {conversations.map((conversation) => (
-          <div
-            key={conversation.id}
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800/50 cursor-pointer transition-colors"
-          >
-            <div className="relative">
-              <img
-                src={conversation.image}
-                alt={conversation.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              {conversation.unread > 0 && (
-                <span className="absolute top-0 right-0 w-4 h-4 bg-green-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-                  {conversation.unread}
-                </span>
-              )}
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+              <div className="w-12 h-12 rounded-full bg-neutral-800" />
+              <div className="flex-1 space-y-1">
+                <div className="h-4 w-24 bg-neutral-800 rounded" />
+                <div className="h-3 w-40 bg-neutral-800 rounded" />
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-white truncate">{conversation.name}</h4>
-              <p className="text-sm text-neutral-400 truncate">{conversation.lastMessage}</p>
-            </div>
-            <span className="text-xs text-neutral-500 whitespace-nowrap">{conversation.time}</span>
+          ))
+        ) : conversations.length === 0 ? (
+          <div className="text-center text-neutral-500 py-8 text-sm">
+            Nessuna conversazione
           </div>
-        ))}
+        ) : (
+          conversations.map((conv) => {
+            const other = otherParticipant(conv);
+            return (
+              <div
+                key={conv.id}
+                onClick={() => onSelectConversation?.(conv.id)}
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-800/50 cursor-pointer transition-colors"
+              >
+                <div className="relative">
+                  <img
+                    src={other.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80"}
+                    alt={other.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  {(conv.unreadCount?.[user.uid] || 0) > 0 && (
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-green-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                      {conv.unreadCount?.[user.uid]}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-white truncate">{other.name}</h4>
+                  <p className="text-sm text-neutral-400 truncate">{conv.lastMessage}</p>
+                </div>
+                <span className="text-xs text-neutral-500 whitespace-nowrap">
+                  {conv.lastMessageTime?.toDate?.()?.toLocaleTimeString?.([], { hour: "2-digit", minute: "2-digit" }) || ""}
+                </span>
+              </div>
+            );
+          })
+        )}
       </div>
       
       <div className="p-4 border-t border-neutral-800">
