@@ -16,8 +16,6 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { storage } from "./firebase";
 
 // === USERS ===
 export async function getAllUsers() {
@@ -157,15 +155,58 @@ export async function updateOrder(id: string, data: Partial<Order>) {
   await updateDoc(doc(db, "orders", id), data);
 }
 
-// === FILE UPLOAD ===
-export async function uploadFile(path: string, file: File) {
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
+// === IMAGE UPLOAD (compressed data URL stored in Firestore, no Firebase Storage) ===
+const MAX_DATA_URL_BYTES = 750 * 1024; // stay safely under the Firestore 1 MB document limit
+
+function dataUrlBytes(dataUrl: string): number {
+  // binary size of a base64 payload ≈ 3/4 of its length
+  const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+  return Math.ceil((base64.length * 3) / 4);
 }
 
-export async function deleteFile(path: string) {
-  await deleteObject(ref(storage, path));
+export async function uploadImage(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Il file selezionato non è un'immagine valida");
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("Il file selezionato non è un'immagine valida"));
+      el.src = objectUrl;
+    });
+
+    const draw = (maxSide: number, quality: number): string => {
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Il file selezionato non è un'immagine valida");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      return canvas.toDataURL("image/jpeg", quality);
+    };
+
+    const qualities = [0.82, 0.7, 0.6, 0.5];
+    const maxSides = [1280, 1024, 800];
+
+    let result = "";
+    for (const maxSide of maxSides) {
+      for (const quality of qualities) {
+        result = draw(maxSide, quality);
+        if (dataUrlBytes(result) <= MAX_DATA_URL_BYTES) return result;
+      }
+    }
+    return result; // best effort: smallest attempt even if still above the target
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 // === DASHBOARD STATS ===

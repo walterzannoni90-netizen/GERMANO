@@ -11,7 +11,7 @@ import {
   createTraining,
   updateTraining,
   deleteTraining,
-  uploadFile,
+  uploadImage,
 } from "@/lib/firebase-firestore";
 
 const DEFAULT_IMAGE =
@@ -53,7 +53,7 @@ export default function AdminTrainings() {
     try {
       let image = DEFAULT_IMAGE;
       if (newImageFile) {
-        image = await uploadFile(`trainings/${Date.now()}-${newImageFile.name}`, newImageFile);
+        image = await uploadImage(newImageFile);
       }
       const created = await createTraining({
         title: newTitle,
@@ -91,7 +91,7 @@ export default function AdminTrainings() {
   const handleChangeImage = async (t: TrainingItem, file: File) => {
     setUploadingId(t.id);
     try {
-      const url = await uploadFile(`trainings/${Date.now()}-${file.name}`, file);
+      const url = await uploadImage(file);
       await updateTraining(t.id, { image: url });
       setTrainings((prev) =>
         prev.map((x) => (x.id === t.id ? { ...x, image: url } : x))

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateUser, uploadFile } from "@/lib/firebase-firestore";
+import { updateUser, uploadImage } from "@/lib/firebase-firestore";
 import { updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -46,10 +46,17 @@ export function UserProfile() {
     setUploadingPhoto(true);
     setPhotoMessage("");
     try {
-      const url = await uploadFile(`avatars/${user.uid}-${Date.now()}`, file);
+      const url = await uploadImage(file);
       await updateUser(user.uid, { photoURL: url });
+      // I data URL sono troppo lunghi per il photoURL di Firebase Auth:
+      // un eventuale errore qui non deve bloccare il flusso (il profilo
+      // viene renderizzato da userData.photoURL in Firestore).
       if (auth.currentUser) {
-        await updateProfile(auth.currentUser, { photoURL: url });
+        try {
+          await updateProfile(auth.currentUser, { photoURL: url });
+        } catch (authErr) {
+          console.warn("Impossibile aggiornare il photoURL di Firebase Auth:", authErr);
+        }
       }
       await refreshUserData();
       setPhotoMessage("Foto aggiornata!");

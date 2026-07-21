@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getUserProgressPhotos, addProgressPhoto, uploadFile } from "@/lib/firebase-firestore";
+import { getUserProgressPhotos, addProgressPhoto, uploadImage } from "@/lib/firebase-firestore";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function ProgressPhotos() {
@@ -30,8 +30,7 @@ export function ProgressPhotos() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     try {
-      const path = `progress-photos/${user.uid}/${Date.now()}_${file.name}`;
-      const url = await uploadFile(path, file);
+      const url = await uploadImage(file);
       await addProgressPhoto({
         userId: user.uid,
         photoUrl: url,

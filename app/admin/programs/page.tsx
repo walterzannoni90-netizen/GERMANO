@@ -11,7 +11,7 @@ import {
   createWorkoutProgram,
   deleteWorkoutProgram,
   updateWorkoutProgram,
-  uploadFile,
+  uploadImage,
   type WorkoutProgram,
   type WorkoutDay,
   type WorkoutExercise,
@@ -160,7 +160,7 @@ export default function AdminPrograms() {
       const existing = editingId ? programs.find((p) => p.id === editingId) : null;
       let image = existing?.image || DEFAULT_IMAGE;
       if (imageFile) {
-        image = await uploadFile(`programs/${Date.now()}-${imageFile.name}`, imageFile);
+        image = await uploadImage(imageFile);
       }
       const payload = {
         title: form.title,
