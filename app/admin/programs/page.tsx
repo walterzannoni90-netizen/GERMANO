@@ -75,6 +75,7 @@ export default function AdminPrograms() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfFileName, setPdfFileName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     getWorkoutPrograms().then(setPrograms);
@@ -166,6 +167,7 @@ export default function AdminPrograms() {
   const handleSave = async () => {
     if (!form.title || saving) return;
     setSaving(true);
+    setSaveError("");
     try {
       const existing = editingId ? programs.find((p) => p.id === editingId) : null;
       let image = existing?.image || DEFAULT_IMAGE;
@@ -207,6 +209,8 @@ export default function AdminPrograms() {
         setPrograms((prev) => [{ id: created.id, ...payload } as WorkoutProgram, ...prev]);
       }
       resetForm();
+    } catch (e: any) {
+      setSaveError(e?.message || "Errore durante il salvataggio. Riprova.");
     } finally {
       setSaving(false);
     }
@@ -415,6 +419,9 @@ export default function AdminPrograms() {
               ))}
             </div>
 
+            {saveError && (
+              <p className="text-sm text-red-500 bg-red-500/10 rounded-xl px-4 py-2">{saveError}</p>
+            )}
             <div className="flex gap-3">
               <Button
                 onClick={handleSave}

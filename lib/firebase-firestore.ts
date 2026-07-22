@@ -209,14 +209,15 @@ export async function uploadImage(file: File): Promise<string> {
   }
 }
 
-const MAX_PDF_BYTES = 900 * 1024;
+const MAX_PDF_BYTES = 800 * 1024;
 
 export async function uploadPDF(file: File): Promise<{ pdfData: string; pdfName: string }> {
-  if (file.type !== "application/pdf") {
-    throw new Error("Il file selezionato non è un PDF valido");
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (!isPdf) {
+    throw new Error("Il file selezionato non è un PDF valido (deve finire con .pdf)");
   }
   if (file.size > MAX_PDF_BYTES) {
-    throw new Error("Il PDF non può superare i 900 KB");
+    throw new Error(`Il PDF non può superare gli 800 KB (questo file è ${(file.size / 1024).toFixed(0)} KB)`);
   }
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
