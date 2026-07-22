@@ -32,11 +32,11 @@ export function UserProfile() {
       setName(userData.name || "");
       setSurname(userData.surname || "");
       setEmail(userData.email || "");
-      setBirthDate((userData as any).birthDate || "");
-      setSex((userData as any).sex || "Maschio");
-      setHeight((userData as any).height?.toString() || "");
-      setWeight((userData as any).weight?.toString() || "");
-      setGoal((userData as any).goal || "Perdere peso");
+      setBirthDate(userData.birthDate || "");
+      setSex(userData.sex || "Maschio");
+      setHeight(userData.height?.toString() || "");
+      setWeight(userData.weight?.toString() || "");
+      setGoal(userData.goal || "Perdere peso");
     }
   }, [userData]);
 
@@ -83,6 +83,7 @@ export function UserProfile() {
         weight: weight ? parseFloat(weight) : null,
         goal,
       });
+      await refreshUserData();
       setMessage("Modifiche salvate con successo!");
     } catch (e) {
       setMessage("Errore durante il salvataggio.");

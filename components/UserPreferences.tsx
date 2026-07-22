@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -16,14 +16,18 @@ const preferences = [
 ];
 
 export function UserPreferences() {
-  const { user, userData } = useAuth();
-  const [settings, setSettings] = useState<Record<string, boolean>>(() => {
-    const prefs: Record<string, boolean> = {};
-    preferences.forEach((p) => {
-      prefs[p.key] = (userData as any)?.[p.key] ?? true;
-    });
-    return prefs;
-  });
+  const { user, userData, refreshUserData } = useAuth();
+  const [settings, setSettings] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (userData) {
+      const prefs: Record<string, boolean> = {};
+      preferences.forEach((p) => {
+        prefs[p.key] = (userData as Record<string, any>)[p.key] ?? true;
+      });
+      setSettings(prefs);
+    }
+  }, [userData]);
 
   const handleToggle = async (key: string) => {
     if (!user) return;
@@ -31,6 +35,7 @@ export function UserPreferences() {
     setSettings((prev) => ({ ...prev, [key]: newVal }));
     try {
       await updateUser(user.uid, { [key]: newVal });
+      await refreshUserData();
     } catch (e) {
       setSettings((prev) => ({ ...prev, [key]: !newVal }));
     }

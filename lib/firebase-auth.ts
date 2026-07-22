@@ -66,4 +66,14 @@ export interface UserData {
   active: boolean;
   phone?: string;
   photoURL?: string;
+  birthDate?: string;
+  sex?: string;
+  height?: number;
+  weight?: number;
+  goal?: string;
+  notifyAppointments?: boolean;
+  notifyWorkouts?: boolean;
+  notifyReports?: boolean;
+  notifyPromotions?: boolean;
+  notifyNewTrainings?: boolean;
 }
