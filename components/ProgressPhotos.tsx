@@ -39,12 +39,13 @@ export function ProgressPhotos() {
       });
       const data = await getUserProgressPhotos(user.uid);
       setPhotos(data);
+      e.target.value = "";
     } catch (e) {
       console.error("Upload error:", e);
     }
   };
 
-  const [before, after] = [photos.find((p) => p.type === "before"), photos.find((p) => p.type === "after")];
+  const [before, after] = [photos.find((p) => p.type === "before"), photos.find((p) => p.type === "after" || p.type === "progress")];
 
   return (
     <Card className="bg-neutral-900/50 border-neutral-800">
