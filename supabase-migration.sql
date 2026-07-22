@@ -286,3 +286,93 @@ CREATE INDEX IF NOT EXISTS idx_messages_conversation ON public.messages(conversa
 CREATE INDEX IF NOT EXISTS idx_consultations_status ON public.consultations(status);
 CREATE INDEX IF NOT EXISTS idx_workout_programs_type ON public.workout_programs(type);
 CREATE INDEX IF NOT EXISTS idx_workout_programs_active ON public.workout_programs(active);
+
+-- ============================================================
+-- FIX: l'admin deve poter leggere TUTTI gli utenti
+-- (la policy "Users own data" limitava la lettura alla propria riga,
+--  quindi in Admin > Utenti si vedeva sempre e solo 1 utente)
+-- Esegui questo blocco nel SQL Editor di Supabase anche su DB esistenti.
+-- ============================================================
+
+-- Funzione SECURITY DEFINER per evitare ricorsione infinita RLS
+-- (una policy su users che legge users andrebbe in loop)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.users
+    WHERE uid = auth.uid()::text AND role = 'admin'
+  );
+$$;
+
+-- L'admin legge tutti gli utenti; gli altri solo se stessi (policy esistente)
+DROP POLICY IF EXISTS "Admins can read all users" ON public.users;
+CREATE POLICY "Admins can read all users" ON public.users
+FOR SELECT
+USING (public.is_admin() OR auth.role() = 'service_role');
+
+-- L'admin può anche aggiornare ruoli/punti di tutti gli utenti
+DROP POLICY IF EXISTS "Admins can update all users" ON public.users;
+CREATE POLICY "Admins can update all users" ON public.users
+FOR UPDATE
+USING (public.is_admin() OR auth.role() = 'service_role')
+WITH CHECK (public.is_admin() OR auth.role() = 'service_role');
+
+-- L'admin può eliminare utenti dalla tabella profili
+DROP POLICY IF EXISTS "Admins can delete users" ON public.users;
+CREATE POLICY "Admins can delete users" ON public.users
+FOR DELETE
+USING (public.is_admin() OR auth.role() = 'service_role');
+
+-- ============================================================
+-- FIX: crea automaticamente la riga profilo in public.users
+-- quando un utente si registra in auth.users
+-- (così auth.users e public.users restano SEMPRE sincronizzati:
+--  niente più utenti invisibili nell'app)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.users (id, uid, name, surname, email, role)
+  VALUES (
+    NEW.id,
+    NEW.id::text,
+    COALESCE(NEW.raw_user_meta_data->>'name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'surname', ''),
+    COALESCE(NEW.email, ''),
+    'client'
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Allinea gli utenti già esistenti in auth.users che non hanno
+-- ancora una riga in public.users (riempie i "buchi" attuali)
+INSERT INTO public.users (id, uid, name, surname, email, role)
+SELECT
+  au.id,
+  au.id::text,
+  COALESCE(au.raw_user_meta_data->>'name', ''),
+  COALESCE(au.raw_user_meta_data->>'surname', ''),
+  COALESCE(au.email, ''),
+  'client'
+FROM auth.users au
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.users pu WHERE pu.uid = au.id::text
+)
+ON CONFLICT (id) DO NOTHING;
