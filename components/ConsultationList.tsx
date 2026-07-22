@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { getConsultations, getSiteContent, Consultation } from "@/lib/firebase-firestore";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function ConsultationList() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [consultants, setConsultants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,11 +101,11 @@ export function ConsultationList() {
                 </span>
               </div>
               <div className="flex gap-3">
-                <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full">
-                  Prenota consulenza
+                <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? "/consultations" : "/login")}>
+                  {user ? "Prenota consulenza" : "Accedi per prenotare"}
                 </Button>
-                <Button variant="outline" className="border-neutral-600 text-white hover:bg-neutral-800 rounded-full">
-                  Vedi profilo
+                <Button variant="outline" className="border-neutral-600 text-white hover:bg-neutral-800 rounded-full" onClick={() => window.open("https://calendar.app.google/v9LYmPS8tFRukoYG8", "_blank")}>
+                  Vedi calendario
                 </Button>
               </div>
             </div>

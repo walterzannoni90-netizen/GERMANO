@@ -65,10 +65,10 @@ export function UserPreferences() {
           <h4 className="font-semibold text-white mb-4">Account</h4>
           
           <div className="space-y-3">
-            <Button variant="destructive" className="w-full rounded-full">
+            <Button variant="destructive" className="w-full rounded-full" onClick={() => { if (confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.")) alert("Richiesta di eliminazione inviata. Ti contatteremo per conferma."); }}>
               Elimina account
             </Button>
-            <Button variant="outline" className="w-full rounded-full border-neutral-600 text-white hover:bg-neutral-800">
+            <Button variant="outline" className="w-full rounded-full border-neutral-600 text-white hover:bg-neutral-800" onClick={() => alert("Disconnessione da tutti i dispositivi in arrivo.")}>
               Disconnetti da tutti i dispositivi
             </Button>
           </div>

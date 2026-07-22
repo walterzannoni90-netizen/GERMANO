@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getConsultations } from "@/lib/firebase-firestore";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function UpcomingSessions() {
+  const router = useRouter();
   const { user } = useAuth();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export function UpcomingSessions() {
           <p className="text-center text-neutral-500 py-8">Nessun appuntamento imminente.</p>
         ) : (
           sessions.map((session: any, index: number) => (
-            <div key={session.id || index} className="flex gap-3 p-3 rounded-xl hover:bg-neutral-800/50 transition-colors">
+            <div key={session.id || index} className="flex gap-3 p-3 rounded-xl hover:bg-neutral-800/50 transition-colors cursor-pointer" onClick={() => router.push("/consultations")}>
               <img
                 src={session.image || "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"}
                 alt={session.title || session.professionalName || "Appuntamento"}

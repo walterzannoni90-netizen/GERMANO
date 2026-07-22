@@ -82,7 +82,7 @@ export function PaymentHistory() {
         )}
         
         <div className="mt-6 text-center">
-          <button className="text-green-500 hover:text-green-400 text-sm font-medium">
+          <button className="text-green-500 hover:text-green-400 text-sm font-medium" onClick={() => alert("Funzionalità di download ricevute in arrivo.")}>
             Scarica tutte le ricevute
           </button>
         </div>

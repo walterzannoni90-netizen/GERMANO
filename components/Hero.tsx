@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getSiteContent } from "@/lib/firebase-firestore";
 
@@ -32,14 +33,18 @@ export function Hero() {
         <p className="text-lg md:text-xl text-neutral-300 mb-10 max-w-2xl mx-auto">
           Piattaforma completa per raggiungere i tuoi obiettivi fitness con programmi personalizzati, consulenze professionali e monitoraggio dei progressi.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button className="h-14 px-8 text-lg rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/25 w-full sm:w-auto">
-            Inizia gratis
-          </Button>
-          <Button variant="outline" className="h-14 px-8 text-lg rounded-full border-neutral-600 text-white hover:bg-neutral-800 w-full sm:w-auto">
-            Scopri di più
-          </Button>
-        </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/register">
+              <Button className="h-14 px-8 text-lg rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/25 w-full sm:w-auto">
+                Inizia gratis
+              </Button>
+            </Link>
+            <Link href="/trainings">
+              <Button variant="outline" className="h-14 px-8 text-lg rounded-full border-neutral-600 text-white hover:bg-neutral-800 w-full sm:w-auto">
+                Scopri di più
+              </Button>
+            </Link>
+          </div>
       </div>
     </section>
   );

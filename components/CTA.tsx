@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export function CTA() {
@@ -10,15 +11,19 @@ export function CTA() {
           Iscriviti ora e ricevi il tuo primo allenamento gratuito! Accedi a centinaia di programmi, consulenze professionali e strumenti avanzati per monitorare i tuoi progressi.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button className="h-14 px-8 text-lg rounded-full bg-white text-green-600 hover:bg-green-50 hover:text-green-700 shadow-xl w-full sm:w-auto">
-            Inizia gratis ora
-          </Button>
-          <Button variant="outline" className="h-14 px-8 text-lg rounded-full bg-green-700/30 text-white hover:bg-green-700/50 border-green-400 w-full sm:w-auto">
-            Prenota consulenza
-          </Button>
+          <Link href="/register">
+            <Button className="h-14 px-8 text-lg rounded-full bg-white text-green-600 hover:bg-green-50 hover:text-green-700 shadow-xl w-full sm:w-auto">
+              Inizia gratis ora
+            </Button>
+          </Link>
+          <Link href="/consultations">
+            <Button variant="outline" className="h-14 px-8 text-lg rounded-full bg-green-700/30 text-white hover:bg-green-700/50 border-green-400 w-full sm:w-auto">
+              Prenota consulenza
+            </Button>
+          </Link>
         </div>
         <p className="mt-6 text-sm text-green-100">
-          Nessuna carta di credito richiesta. Cancellation facilissima.
+          Nessuna carta di credito richiesta. Cancellazione facilissima.
         </p>
       </div>
     </section>

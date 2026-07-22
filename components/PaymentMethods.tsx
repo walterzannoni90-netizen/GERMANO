@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -36,7 +38,7 @@ export function PaymentMethods() {
                   Predefinito
                 </span>
               ) : (
-                <Button variant="outline" className="border-neutral-600 text-xs rounded-full hover:bg-neutral-800">
+                <Button variant="outline" className="border-neutral-600 text-xs rounded-full hover:bg-neutral-800" onClick={() => alert("Metodo impostato come predefinito.")}>
                   Imposta predefinito
                 </Button>
               )}
@@ -44,7 +46,7 @@ export function PaymentMethods() {
           </div>
         ))}
         
-        <Button className="w-full border border-green-500/50 text-green-500 hover:bg-green-500/10 hover:text-green-400 rounded-full">
+        <Button className="w-full border border-green-500/50 text-green-500 hover:bg-green-500/10 hover:text-green-400 rounded-full" onClick={() => alert("Integrazione con Stripe in arrivo.")}>
           + Aggiungi nuovo metodo
         </Button>
       </CardContent>

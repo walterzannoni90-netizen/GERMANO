@@ -119,10 +119,10 @@ export function ProgressGraphs() {
             )}
 
             <div className="flex gap-2">
-              <Button variant="secondary" className="flex-1 rounded-full">
+              <Button variant="secondary" className="flex-1 rounded-full" onClick={() => alert("Registra più misurazioni per visualizzare il grafico completo.")}>
                 Visualizza grafico completo
               </Button>
-              <Button variant="outline" className="border-neutral-600 text-white hover:bg-neutral-800 rounded-full">
+              <Button variant="outline" className="border-neutral-600 text-white hover:bg-neutral-800 rounded-full" onClick={() => alert("Funzionalità di esportazione in arrivo.")}>
                 Esporta dati
               </Button>
             </div>

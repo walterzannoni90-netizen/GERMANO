@@ -130,7 +130,7 @@ export function ProgressPhotos() {
               <h4 className="font-semibold text-white mb-1">Confronto immagini</h4>
               <p className="text-sm text-neutral-400">Visualizza le tue foto a confronto con animazioni fluide</p>
             </div>
-            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full">
+            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => alert("Carica foto 'Prima' e 'Dopo' per usare il comparatore.")}>
               Apri comparatore
             </Button>
           </div>

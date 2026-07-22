@@ -36,10 +36,10 @@ export function Wallet() {
         </div>
         
         <div className="space-y-2">
-          <Button className="w-full bg-white text-green-600 hover:bg-green-50 hover:text-green-700 rounded-full">
+          <Button className="w-full bg-white text-green-600 hover:bg-green-50 hover:text-green-700 rounded-full" onClick={() => alert("Programma fedeltà in arrivo. Accumula punti per sbloccare premi!")}>
             Riscatta punti
           </Button>
-          <Button variant="secondary" className="w-full bg-white/10 hover:bg-white/20 text-white rounded-full">
+          <Button variant="secondary" className="w-full bg-white/10 hover:bg-white/20 text-white rounded-full" onClick={() => { navigator.clipboard?.writeText(window.location.href); alert("Link copiato! Condividilo con un amico."); }}>
             Condividi amico
           </Button>
         </div>

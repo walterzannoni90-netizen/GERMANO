@@ -105,7 +105,7 @@ export function MessageSidebar({ onSelectConversation }: MessageSidebarProps) {
       </div>
       
       <div className="p-4 border-t border-neutral-800">
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-white" onClick={() => alert("Seleziona un utente dalla lista per iniziare una conversazione.")}>
           Nuova conversazione
         </Button>
       </div>

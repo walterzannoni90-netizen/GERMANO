@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getTrainings, Training } from "@/lib/firebase-firestore";
 
 export function FeaturedTrainings() {
+  const router = useRouter();
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +46,11 @@ export function FeaturedTrainings() {
     <section id="trainings" className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold text-white">Allenamenti in evidenza</h2>
-        <Button variant="link" className="text-green-500">
-          Vedi tutti
-        </Button>
+        <Link href="/trainings">
+          <Button variant="link" className="text-green-500">
+            Vedi tutti
+          </Button>
+        </Link>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,7 +90,7 @@ export function FeaturedTrainings() {
                   {training.rating || "4.8"}
                 </span>
               </div>
-              <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+              <Button className="w-full bg-green-500 hover:bg-green-600 text-white" onClick={() => router.push("/trainings")}>
                 Guarda ora
               </Button>
             </CardContent>

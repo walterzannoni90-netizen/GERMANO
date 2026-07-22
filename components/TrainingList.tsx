@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { getTrainings, Training } from "@/lib/firebase-firestore";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function TrainingList() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,8 +77,8 @@ export function TrainingList() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold text-white">€{(training.price || 0).toFixed(2)}</span>
-              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full">
-                Acquista ora
+              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? "/trainings" : "/login")}>
+                {user ? "Dettagli" : "Accedi per acquistare"}
               </Button>
             </div>
           </CardContent>
