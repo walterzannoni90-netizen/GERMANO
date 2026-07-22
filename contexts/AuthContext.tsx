@@ -55,15 +55,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (u) {
         let data = await getUserData(u.id);
         if (!data) {
-          await supabase.from("users").insert({
-            id: u.id,
-            uid: u.id,
-            name: u.user_metadata?.name || "",
-            surname: u.user_metadata?.surname || "",
-            email: u.email,
-            role: "client",
-          });
-          data = await getUserData(u.id);
+          // Se l'insert fallisce (es. RLS o email da confermare),
+          // non bloccare il login: l'utente resta senza profilo esteso
+          try {
+            await supabase.from("users").insert({
+              id: u.id,
+              uid: u.id,
+              name: u.user_metadata?.name || "",
+              surname: u.user_metadata?.surname || "",
+              email: u.email,
+              role: "client",
+            });
+            data = await getUserData(u.id);
+          } catch {
+            data = null;
+          }
         }
         if (data && u.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
           await supabase.from("users").update({ role: "admin" }).eq("uid", u.id);

@@ -10,15 +10,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
     
+    // Varianti adattate al tema scuro del sito (le classi dark: non erano mai attive,
+    // quindi i bottoni chiari risultavano invisibili su sfondo scuro)
     const variants = {
-      default: "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90",
-      destructive: "bg-red-500 text-neutral-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/90",
-      outline: "border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
-      secondary: "bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
-      ghost: "hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
-      link: "text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50",
-      primary: "bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600 shadow-lg shadow-purple-500/20",
-      accent: "bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-600 shadow-lg shadow-orange-500/20",
+      default: "bg-neutral-800 text-white hover:bg-neutral-700",
+      destructive: "bg-red-600 text-white hover:bg-red-500",
+      outline: "border border-neutral-700 bg-transparent text-white hover:bg-neutral-800 hover:text-white",
+      secondary: "bg-neutral-800 text-neutral-50 hover:bg-neutral-700",
+      ghost: "text-neutral-300 hover:bg-neutral-800 hover:text-white",
+      link: "text-purple-400 underline-offset-4 hover:underline hover:text-purple-300",
+      primary: "bg-purple-500 text-white hover:bg-purple-600 shadow-lg shadow-purple-500/20",
+      accent: "bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20",
     };
     
     const sizes = {

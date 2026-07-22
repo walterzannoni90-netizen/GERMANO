@@ -84,7 +84,7 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-white mb-2 block">Nome</label>
                   <Input type="text" placeholder="Mario" value={name} onChange={(e) => setName(e.target.value)} required />

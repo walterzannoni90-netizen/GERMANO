@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNav } from "@/contexts/NavContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Bell, Menu, LogOut, Shield } from "lucide-react";
@@ -13,12 +14,17 @@ interface NavbarProps {
 
 export function Navbar({ className }: NavbarProps) {
   const { user, userData, isAdmin, logout } = useAuth();
+  const { toggleSidebar } = useNav();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className={cn("sticky top-0 z-50 flex items-center justify-between px-4 py-3 md:px-6 bg-dark-surface/80 backdrop-blur-md border-b border-neutral-800", className)}>
+    <header className={cn("sticky top-0 z-50 flex items-center justify-between gap-2 px-4 py-3 md:px-6 bg-dark-surface/80 backdrop-blur-md border-b border-neutral-800", className)}>
       <div className="flex items-center gap-4">
-        <button className="md:hidden p-1 text-neutral-400 hover:text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button
+          className="md:hidden p-1 text-neutral-400 hover:text-white"
+          aria-label="Apri menu"
+          onClick={() => (user ? toggleSidebar() : setMobileOpen(!mobileOpen))}
+        >
           <Menu className="h-6 w-6" />
         </button>
         <div className="flex items-center gap-2 text-purple-500">
@@ -47,9 +53,9 @@ export function Navbar({ className }: NavbarProps) {
         )}
       </nav>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 top-14 z-40 bg-dark/95 md:hidden" onClick={() => setMobileOpen(false)}>
-          <nav className="flex flex-col gap-2 p-6" onClick={e => e.stopPropagation()}>
+      {mobileOpen && !user && (
+        <div className="absolute left-0 right-0 top-full z-40 bg-dark-surface border-b border-neutral-800 shadow-xl md:hidden" onClick={() => setMobileOpen(false)}>
+          <nav className="flex flex-col gap-1 p-4" onClick={e => e.stopPropagation()}>
             <Link href="/" className="text-lg font-medium text-white hover:text-purple-500 py-2" onClick={() => setMobileOpen(false)}>Home</Link>
             <Link href="/trainings" className="text-lg font-medium text-neutral-400 hover:text-purple-500 py-2" onClick={() => setMobileOpen(false)}>Schede</Link>
             <Link href="/nutrition" className="text-lg font-medium text-neutral-400 hover:text-purple-500 py-2" onClick={() => setMobileOpen(false)}>Alimentazione</Link>
