@@ -17,6 +17,7 @@ export function ProgramsList() {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
   const [purchased, setPurchased] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -37,8 +38,10 @@ export function ProgramsList() {
 
   const handlePurchase = async (programId: string) => {
     if (!user || !userData) { router.push("/login"); return; }
+    if (purchasingId) return;
     const p = programs.find(pr => pr.id === programId);
     if (!p) return;
+    setPurchasingId(programId);
     try {
       await addUserPurchase(user.uid, programId);
       await createOrder({
@@ -52,6 +55,8 @@ export function ProgramsList() {
       setPurchased(prev => [...prev, programId]);
     } catch (e) {
       console.error(e);
+    } finally {
+      setPurchasingId(null);
     }
   };
 
@@ -125,8 +130,8 @@ export function ProgramsList() {
                     Vedi scheda
                   </Button>
                 ) : (
-                  <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => handlePurchase(program.id!)}>
-                    {!user ? "Accedi" : "Acquista ora"}
+                  <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => handlePurchase(program.id!)} disabled={purchasingId === program.id}>
+                    {purchasingId === program.id ? "Acquisto..." : !user ? "Accedi" : "Acquista ora"}
                   </Button>
                 )}
               </div>

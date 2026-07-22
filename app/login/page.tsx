@@ -93,11 +93,7 @@ export default function LoginPage() {
                 </p>
               )}
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input type="checkbox" id="remember" className="h-4 w-4 rounded border-neutral-700 bg-neutral-800 text-green-500 focus:ring-green-500" />
-                  <label htmlFor="remember" className="ml-2 text-sm text-neutral-400">Ricordami</label>
-                </div>
+              <div className="flex items-center justify-end">
                 <button type="button" onClick={handleReset} className="text-sm text-green-500 hover:text-green-400">
                   Hai dimenticato la password?
                 </button>

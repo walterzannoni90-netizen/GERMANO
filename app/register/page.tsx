@@ -95,18 +95,9 @@ export default function RegisterPage() {
               {error && <p className="text-sm text-red-400">{error}</p>}
 
               <div className="space-y-2">
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-neutral-700 bg-neutral-800 text-green-500 focus:ring-green-500" />
-                  <span className="text-sm text-neutral-400">
-                    Accetto i <a href="#" className="text-green-500 hover:text-green-400">Termini di servizio</a> e la <a href="#" className="text-green-500 hover:text-green-400">Privacy Policy</a>
-                  </span>
-                </label>
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-neutral-700 bg-neutral-800 text-green-500 focus:ring-green-500" />
-                  <span className="text-sm text-neutral-400">
-                    Voglio ricevere aggiornamenti e offerte speciali
-                  </span>
-                </label>
+                <p className="text-xs text-neutral-500">
+                  Registrandoti accetti i Termini di Servizio e la Privacy Policy di Germano Poleselli.
+                </p>
               </div>
 
               <Button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full">

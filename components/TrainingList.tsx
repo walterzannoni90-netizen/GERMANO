@@ -77,7 +77,7 @@ export function TrainingList() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold text-white">€{(training.price || 0).toFixed(2)}</span>
-              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? "/trainings" : "/login")}>
+              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? `/trainings/detail?id=${training.id}` : "/login")}>
                 {user ? "Dettagli" : "Accedi per acquistare"}
               </Button>
             </div>
