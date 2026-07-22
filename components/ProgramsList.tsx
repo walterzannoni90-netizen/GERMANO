@@ -22,7 +22,7 @@ export function ProgramsList() {
     (async () => {
       try {
         const all = await getWorkoutPrograms();
-        setPrograms(all.filter(p => p.active !== false));
+        setPrograms(all.filter(p => p.active !== false && (p.type === "workout" || !p.type)));
         if (user) {
           const purchases = await getUserPurchases(user.uid);
           setPurchased(purchases.map(p => p.trainingId));

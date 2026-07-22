@@ -1,27 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, userData, loading, isAdmin } = useAuth();
+  const { user, userData, loading, isAdmin, refreshUserData } = useAuth();
   const router = useRouter();
+  const [promoting, setPromoting] = useState(false);
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         router.push("/login");
-      } else if (!isAdmin) {
-        router.push("/dashboard");
       }
     }
-  }, [user, userData, loading, isAdmin, router]);
+  }, [user, loading, router]);
+
+  const handleMakeAdmin = async () => {
+    if (!user || promoting) return;
+    setPromoting(true);
+    try {
+      await updateDoc(doc(db, "users", user.uid), { role: "admin" });
+      await refreshUserData();
+    } catch (e) {
+      alert("Errore: non puoi diventare admin. Contatta il supporto.");
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -31,7 +46,36 @@ export default function AdminLayout({
     );
   }
 
-  if (!user || !isAdmin) return null;
+  if (!user) return null;
+
+  if (!isAdmin) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-dark p-4">
+        <div className="text-center max-w-md space-y-6">
+          <div className="text-6xl">🔐</div>
+          <h1 className="text-3xl font-bold text-white">Accesso Admin</h1>
+          <p className="text-neutral-400">
+            Non hai i permessi di amministratore.
+          </p>
+          <p className="text-sm text-neutral-500">
+            Se sei il proprietario della piattaforma, clicca il pulsante qui sotto per diventare amministratore.
+          </p>
+          <Button
+            onClick={handleMakeAdmin}
+            disabled={promoting}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8"
+          >
+            {promoting ? "Attivazione..." : "Diventa amministratore"}
+          </Button>
+          <div>
+            <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-neutral-400">
+              Torna alla dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-dark">

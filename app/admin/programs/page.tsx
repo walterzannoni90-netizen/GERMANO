@@ -38,6 +38,7 @@ interface ProgramForm {
   totalWeeks: string;
   price: string;
   description: string;
+  type: "workout" | "nutrition";
 }
 
 const emptyForm: ProgramForm = {
@@ -49,8 +50,9 @@ const emptyForm: ProgramForm = {
   location: "palestra",
   sessionsPerWeek: "3",
   totalWeeks: "4",
-  price: "",
+  price: "40",
   description: "",
+  type: "workout",
 };
 
 const emptyExercise = (): WorkoutExercise => ({
@@ -148,8 +150,9 @@ export default function AdminPrograms() {
       location: p.location || "palestra",
       sessionsPerWeek: p.sessionsPerWeek?.toString() || "3",
       totalWeeks: p.totalWeeks?.toString() || "4",
-      price: p.price?.toString() || "",
+      price: p.price?.toString() || "40",
       description: p.description || "",
+      type: p.type || "workout",
     });
     setDays(p.days ? p.days.map((d) => ({ ...d, exercises: d.exercises.map((ex) => ({ ...ex })) })) : []);
     setImageFile(null);
@@ -192,6 +195,7 @@ export default function AdminPrograms() {
         days,
         pdfName,
         pdfData,
+        type: form.type,
       };
       if (editingId) {
         await updateWorkoutProgram(editingId, payload);
@@ -270,8 +274,20 @@ export default function AdminPrograms() {
                 </select>
               </div>
               <div>
-                <label className="text-sm text-neutral-400 mb-1 block">Target</label>
-                <Input placeholder="Es. Uomo, Donna, Full body" value={form.target} onChange={(e) => setField("target", e.target.value)} />
+                <label className="text-sm text-neutral-400 mb-1 block">Target / Genere</label>
+                <select value={form.target} onChange={(e) => setField("target", e.target.value)} className={selectClass}>
+                  <option value="">Seleziona...</option>
+                  <option value="Uomo">Uomo</option>
+                  <option value="Donna">Donna</option>
+                  <option value="Unisex">Unisex</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-neutral-400 mb-1 block">Tipo</label>
+                <select value={form.type} onChange={(e) => setField("type", e.target.value)} className={selectClass}>
+                  <option value="workout">Scheda Allenamento</option>
+                  <option value="nutrition">Piano Alimentare</option>
+                </select>
               </div>
               <div>
                 <label className="text-sm text-neutral-400 mb-1 block">Luogo</label>
@@ -424,9 +440,9 @@ export default function AdminPrograms() {
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Immagine</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Titolo</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Target</th>
+                  <th className="text-left p-4 text-sm font-medium text-neutral-400">Tipo</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Livello</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Obiettivo</th>
-                  <th className="text-left p-4 text-sm font-medium text-neutral-400">Giorni</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Prezzo</th>
                   <th className="text-left p-4 text-sm font-medium text-neutral-400">Stato</th>
                   <th className="text-right p-4 text-sm font-medium text-neutral-400">Azioni</th>
@@ -450,9 +466,9 @@ export default function AdminPrograms() {
                       <p className="text-xs text-neutral-500">{p.subtitle}</p>
                     </td>
                     <td className="p-4 text-sm text-neutral-400">{p.target}</td>
+                    <td className="p-4"><Badge variant={p.type === "nutrition" ? "warning" : "success"}>{p.type === "nutrition" ? "Alimentazione" : "Scheda"}</Badge></td>
                     <td className="p-4"><Badge variant="neutral">{p.level}</Badge></td>
                     <td className="p-4 text-sm text-neutral-400">{p.goal}</td>
-                    <td className="p-4 text-sm text-neutral-400">{p.days?.length || 0}</td>
                     <td className="p-4 text-sm font-semibold text-white">€{p.price?.toFixed(2)}</td>
                     <td className="p-4">
                       <Badge variant={p.active !== false ? "success" : "danger"}>
@@ -479,7 +495,7 @@ export default function AdminPrograms() {
                 ))}
                 {programs.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="p-8 text-center text-neutral-500">
+                    <td colSpan={10} className="p-8 text-center text-neutral-500">
                       <Dumbbell className="h-8 w-8 mx-auto mb-2 text-neutral-600" />
                       Nessun programma trovato.
                     </td>

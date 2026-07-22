@@ -524,6 +524,7 @@ export interface WorkoutProgram {
   days: WorkoutDay[];
   pdfName?: string;
   pdfData?: string;
+  type?: "workout" | "nutrition";
   createdAt?: any;
 }
 
