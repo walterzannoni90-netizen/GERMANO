@@ -30,7 +30,7 @@ export function ProgressPhotos() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     try {
-      const url = await uploadImage(file);
+      const url = await uploadImage(file, "progress-photos");
       await addProgressPhoto({
         userId: user.uid,
         photoUrl: url,
