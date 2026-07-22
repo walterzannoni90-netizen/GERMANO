@@ -25,11 +25,7 @@ export default function AdminLayout({
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    if (user && userData && !isAdmin && user.email === "ptgermanopoleselli@gmail.com") {
-      updateDoc(doc(db, "users", user.uid), { role: "admin" }).then(() => refreshUserData()).catch(() => {});
-    }
-  }, [user, userData, isAdmin]);
+
 
   const handleMakeAdmin = async () => {
     if (!user || promoting) return;

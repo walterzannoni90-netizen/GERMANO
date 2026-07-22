@@ -9,6 +9,8 @@ import {
 } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { getUserData, UserData, logOut as firebaseLogOut } from "@/lib/firebase-auth";
 
 interface AuthContextType {
@@ -40,6 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(firebaseUser);
         if (firebaseUser) {
           const data = await getUserData(firebaseUser.uid);
+          if (data) {
+            if (firebaseUser.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
+              await updateDoc(doc(db, "users", firebaseUser.uid), { role: "admin" });
+              data.role = "admin";
+            }
+          }
           setUserData(data);
         } else {
           setUserData(null);
