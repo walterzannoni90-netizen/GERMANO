@@ -120,8 +120,8 @@ export default function NutritionPage() {
                         Vedi piano
                       </Button>
                     ) : (
-                      <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => handlePurchase(program.id!)} disabled={purchasingId === program.id}>
-                        {purchasingId === program.id ? "Acquisto..." : !user ? "Accedi" : "Acquista €40"}
+                      <Button className="bg-neutral-700 text-neutral-400 rounded-full cursor-not-allowed" disabled>
+                        {!user ? "Accedi" : "Stripe in arrivo"}
                       </Button>
                     )}
                   </div>

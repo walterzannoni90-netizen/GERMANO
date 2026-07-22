@@ -135,11 +135,11 @@ export function ProgramsList({ filters }: ProgramsListProps) {
               <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
                 Vedi scheda
               </Button>
-            ) : (
-              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => handlePurchase(program.id!)} disabled={purchasingId === program.id}>
-                {purchasingId === program.id ? "Acquisto..." : !user ? "Accedi" : "Acquista ora"}
-              </Button>
-            )}
+                ) : (
+                  <Button className="bg-neutral-700 text-neutral-400 rounded-full cursor-not-allowed" disabled>
+                    {!user ? "Accedi" : "Stripe in arrivo"}
+                  </Button>
+                )}
           </div>
         </CardContent>
       </Card>

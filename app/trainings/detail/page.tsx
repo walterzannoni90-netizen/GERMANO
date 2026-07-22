@@ -152,11 +152,10 @@ function DetailContent() {
             <p className="text-neutral-400 mb-6">Acquista questo programma per visualizzare la scheda completa con tutti gli esercizi giorno per giorno.</p>
             <div className="text-3xl font-bold text-white mb-6">€{program.price.toFixed(2)}</div>
             <Button
-              onClick={handlePurchase}
-              disabled={purchasing || !user}
-              className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8 py-6 text-lg"
+              disabled
+              className="bg-neutral-700 text-neutral-400 rounded-full px-8 py-6 text-lg cursor-not-allowed"
             >
-              {purchasing ? "Acquisto in corso..." : !user ? "Accedi per acquistare" : "Acquista ora"}
+              {!user ? "Accedi per acquistare" : "Stripe in arrivo"}
             </Button>
             {!user && (
               <div className="mt-4 flex gap-2 justify-center">
