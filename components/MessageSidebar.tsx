@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getUserConversations } from "@/lib/firebase-firestore";
+import { getUserConversations, subscribeToConversations } from "@/lib/firebase-firestore";
 import { useAuth } from "@/contexts/AuthContext";
-import { onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 interface MessageSidebarProps {
   onSelectConversation?: (id: string) => void;
@@ -19,13 +17,8 @@ export function MessageSidebar({ onSelectConversation }: MessageSidebarProps) {
 
   useEffect(() => {
     if (!user) return;
-    const q = query(
-      collection(db, "conversations"),
-      where("participants", "array-contains", user.uid),
-      orderBy("lastMessageTime", "desc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setConversations(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const unsub = subscribeToConversations(user.uid, (convs) => {
+      setConversations(convs);
       setLoading(false);
     });
     return () => unsub();

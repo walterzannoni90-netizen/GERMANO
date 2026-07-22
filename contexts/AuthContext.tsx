@@ -7,14 +7,17 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { getUserData, UserData, logOut as firebaseLogOut } from "@/lib/firebase-auth";
+import { supabase } from "@/lib/supabase";
+import { getUserData, UserData, logOut as supabaseLogOut } from "@/lib/firebase-auth";
+import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
-  user: User | null;
+  user: {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL: string | null;
+  } | null;
   userData: UserData | null;
   loading: boolean;
   isAdmin: boolean;
@@ -32,47 +35,62 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        setUser(firebaseUser);
-        if (firebaseUser) {
-          const data = await getUserData(firebaseUser.uid);
-          if (data) {
-            if (firebaseUser.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
-              await updateDoc(doc(db, "users", firebaseUser.uid), { role: "admin" });
-              data.role = "admin";
-            }
-          }
-          setUserData(data);
-        } else {
-          setUserData(null);
-        }
-      } catch (e) {
-        console.error("Auth error:", e);
-      } finally {
-        setLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setSupabaseUser(u);
+      if (u) {
+        getUserData(u.id).then(setUserData);
       }
+      setLoading(false);
     });
-    return () => unsub();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const u = session?.user ?? null;
+      setSupabaseUser(u);
+      if (u) {
+        const data = await getUserData(u.id);
+        if (data) {
+          if (u.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
+            await supabase.from("users").update({ role: "admin" }).eq("uid", u.id);
+            data.role = "admin";
+          }
+        }
+        setUserData(data);
+      } else {
+        setUserData(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const logout = async () => {
-    await firebaseLogOut();
+    await supabaseLogOut();
   };
 
   const refreshUserData = async () => {
-    if (user) {
-      const data = await getUserData(user.uid);
+    if (supabaseUser) {
+      const data = await getUserData(supabaseUser.id);
       setUserData(data);
     }
   };
 
-  const isAdmin = userData?.role === "admin" || user?.email === "ptgermanopoleselli@gmail.com";
+  const user = supabaseUser
+    ? {
+        uid: supabaseUser.id,
+        email: supabaseUser.email ?? null,
+        displayName: supabaseUser.user_metadata?.full_name || null,
+        photoURL: supabaseUser.user_metadata?.photo_url || null,
+      }
+    : null;
+
+  const isAdmin = userData?.role === "admin" || supabaseUser?.email === "ptgermanopoleselli@gmail.com";
 
   return (
     <AuthContext.Provider value={{ user, userData, loading, isAdmin, logout, refreshUserData }}>

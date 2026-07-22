@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { updateUser } from "@/lib/firebase-firestore";
 import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({
@@ -31,7 +30,7 @@ export default function AdminLayout({
     if (!user || promoting) return;
     setPromoting(true);
     try {
-      await updateDoc(doc(db, "users", user.uid), { role: "admin" });
+      await updateUser(user.uid, { role: "admin" });
       await refreshUserData();
     } catch (e) {
       alert("Errore: non puoi diventare admin. Contatta il supporto.");

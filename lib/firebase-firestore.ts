@@ -1,57 +1,93 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  serverTimestamp,
-  DocumentData,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "./firebase";
+import { supabase } from "./supabase";
 
-// === USERS ===
+// ─── Helpers ────────────────────────────────────────────────
+function camelToSnake(str: string): string {
+  return str
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+    .replace(/([a-z])([A-Z])/g, "$1_$2")
+    .toLowerCase();
+}
+
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+function mapKeys(obj: any, keyMapper: (k: string) => string): any {
+  if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) return obj.map((item) => mapKeys(item, keyMapper));
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) continue;
+    const newKey = keyMapper(key);
+    if (value && typeof value === "object" && !(value instanceof Date) && !Array.isArray(value) && !(value instanceof Blob) && !(value instanceof File)) {
+      result[newKey] = mapKeys(value, keyMapper);
+    } else {
+      result[newKey] = value;
+    }
+  }
+  return result;
+}
+
+function toCamel(row: any): any {
+  if (!row) return null;
+  const result = mapKeys(row, snakeToCamel);
+  const tsFields = ["createdAt", "updatedAt", "uploadedAt", "completedAt", "lastMessageTime", "purchasedAt"];
+  for (const f of tsFields) {
+    const v = result[f];
+    if (v && typeof v === "string") {
+      result[f] = { toDate: () => new Date(v), toMillis: () => new Date(v).getTime() };
+    }
+  }
+  return result;
+}
+
+function toSnake(obj: any): any {
+  if (!obj) return obj;
+  const result = mapKeys(obj, camelToSnake);
+  delete result.id;
+  delete result.created_at;
+  delete result.updated_at;
+  delete result.createdAt;
+  delete result.updatedAt;
+  return result;
+}
+
+function mapRows(rows: any[]): any[] {
+  return (rows || []).map(toCamel);
+}
+
+// ─── USERS ──────────────────────────────────────────────────
 export async function getAllUsers() {
-  const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("users").select("*").order("created_at", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function updateUser(uid: string, data: Partial<any>) {
-  await updateDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() });
+  const payload = toSnake(data);
+  payload.updated_at = new Date().toISOString();
+  await supabase.from("users").update(payload).eq("uid", uid);
 }
 
 export async function deleteUser(uid: string) {
-  await deleteDoc(doc(db, "users", uid));
+  await supabase.from("users").delete().eq("uid", uid);
 }
 
-// === PURCHASES (user's purchased training IDs) ===
+// ─── PURCHASES ──────────────────────────────────────────────
 export async function getUserPurchases(uid: string) {
-  const q = query(collection(db, "users", uid, "purchases"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("purchases").select("*").eq("user_id", uid);
+  return mapRows(data || []);
 }
 
 export async function addUserPurchase(uid: string, trainingId: string) {
-  await setDoc(doc(db, "users", uid, "purchases", trainingId), {
-    trainingId,
-    purchasedAt: serverTimestamp(),
-  });
+  await supabase.from("purchases").insert({ user_id: uid, training_id: trainingId });
 }
 
 export async function hasUserPurchased(uid: string, trainingId: string) {
-  const snap = await getDoc(doc(db, "users", uid, "purchases", trainingId));
-  return snap.exists();
+  const { data } = await supabase.from("purchases").select("id").eq("user_id", uid).eq("training_id", trainingId).maybeSingle();
+  return !!data;
 }
 
-// === TRAININGS ===
+// ─── TRAININGS ──────────────────────────────────────────────
 export interface Training {
   id?: string;
   title: string;
@@ -68,32 +104,30 @@ export interface Training {
   createdAt?: any;
 }
 
-const trainingsCol = collection(db, "trainings");
-
 export async function getTrainings() {
-  const q = query(trainingsCol, orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Training));
+  const { data } = await supabase.from("trainings").select("*").order("created_at", { ascending: false });
+  return mapRows(data || []) as Training[];
 }
 
 export async function getTraining(id: string) {
-  const snap = await getDoc(doc(db, "trainings", id));
-  return snap.exists() ? ({ id: snap.id, ...snap.data() } as Training) : null;
+  const { data } = await supabase.from("trainings").select("*").eq("id", id).single();
+  return data ? (toCamel(data) as Training) : null;
 }
 
 export async function createTraining(data: Omit<Training, "id" | "createdAt">) {
-  return await addDoc(trainingsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("trainings").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function updateTraining(id: string, data: Partial<Training>) {
-  await updateDoc(doc(db, "trainings", id), data);
+  await supabase.from("trainings").update(toSnake(data)).eq("id", id);
 }
 
 export async function deleteTraining(id: string) {
-  await deleteDoc(doc(db, "trainings", id));
+  await supabase.from("trainings").delete().eq("id", id);
 }
 
-// === CONSULTATIONS ===
+// ─── CONSULTATIONS ──────────────────────────────────────────
 export interface Consultation {
   id?: string;
   professionalId: string;
@@ -111,23 +145,21 @@ export interface Consultation {
   createdAt?: any;
 }
 
-const consultationsCol = collection(db, "consultations");
-
 export async function getConsultations() {
-  const q = query(consultationsCol, orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Consultation));
+  const { data } = await supabase.from("consultations").select("*").order("created_at", { ascending: false });
+  return mapRows(data || []) as Consultation[];
 }
 
 export async function createConsultation(data: Omit<Consultation, "id" | "createdAt">) {
-  return await addDoc(consultationsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("consultations").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function updateConsultation(id: string, data: Partial<Consultation>) {
-  await updateDoc(doc(db, "consultations", id), data);
+  await supabase.from("consultations").update(toSnake(data)).eq("id", id);
 }
 
-// === ORDERS / PAYMENTS ===
+// ─── ORDERS ─────────────────────────────────────────────────
 export interface Order {
   id?: string;
   userId: string;
@@ -139,114 +171,69 @@ export interface Order {
   createdAt?: any;
 }
 
-const ordersCol = collection(db, "orders");
-
 export async function getOrders() {
-  const q = query(ordersCol, orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Order));
+  const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+  return mapRows(data || []) as Order[];
 }
 
 export async function createOrder(data: Omit<Order, "id" | "createdAt">) {
-  return await addDoc(ordersCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("orders").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function updateOrder(id: string, data: Partial<Order>) {
-  await updateDoc(doc(db, "orders", id), data);
+  await supabase.from("orders").update(toSnake(data)).eq("id", id);
 }
 
-// === IMAGE UPLOAD (compressed data URL stored in Firestore, no Firebase Storage) ===
-const MAX_DATA_URL_BYTES = 750 * 1024; // stay safely under the Firestore 1 MB document limit
-
-function dataUrlBytes(dataUrl: string): number {
-  // binary size of a base64 payload ≈ 3/4 of its length
-  const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
-  return Math.ceil((base64.length * 3) / 4);
+// ─── USER ORDERS ────────────────────────────────────────────
+export async function getUserOrders(userId: string) {
+  const { data } = await supabase.from("orders").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+  return mapRows(data || []);
 }
 
-export async function uploadImage(file: File): Promise<string> {
+// ─── STORAGE UPLOADS ────────────────────────────────────────
+export async function uploadImage(file: File, bucket: string = "program-images"): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Il file selezionato non è un'immagine valida");
   }
-
-  const objectUrl = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error("Il file selezionato non è un'immagine valida"));
-      el.src = objectUrl;
-    });
-
-    const draw = (maxSide: number, quality: number): string => {
-      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
-      const w = Math.max(1, Math.round(img.naturalWidth * scale));
-      const h = Math.max(1, Math.round(img.naturalHeight * scale));
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Il file selezionato non è un'immagine valida");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
-      return canvas.toDataURL("image/jpeg", quality);
-    };
-
-    const qualities = [0.82, 0.7, 0.6, 0.5];
-    const maxSides = [1280, 1024, 800];
-
-    let result = "";
-    for (const maxSide of maxSides) {
-      for (const quality of qualities) {
-        result = draw(maxSide, quality);
-        if (dataUrlBytes(result) <= MAX_DATA_URL_BYTES) return result;
-      }
-    }
-    return result; // best effort: smallest attempt even if still above the target
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
+  const ext = file.name.split(".").pop() || "jpg";
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (error) throw new Error("Errore durante il caricamento dell'immagine");
+  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+  return urlData.publicUrl;
 }
-
-const MAX_PDF_BYTES = 800 * 1024;
 
 export async function uploadPDF(file: File): Promise<{ pdfData: string; pdfName: string }> {
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-  if (!isPdf) {
-    throw new Error("Il file selezionato non è un PDF valido (deve finire con .pdf)");
-  }
-  if (file.size > MAX_PDF_BYTES) {
-    throw new Error(`Il PDF non può superare gli 800 KB (questo file è ${(file.size / 1024).toFixed(0)} KB)`);
-  }
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Errore durante la lettura del file PDF"));
-    reader.readAsDataURL(file);
+  if (!isPdf) throw new Error("Il file selezionato non è un PDF valido (deve finire con .pdf)");
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.pdf`;
+  const { error } = await supabase.storage.from("pdf-files").upload(fileName, file, {
+    cacheControl: "3600",
+    upsert: false,
   });
-  return { pdfData: base64, pdfName: file.name };
+  if (error) throw new Error("Errore durante il caricamento del PDF");
+  const { data: urlData } = supabase.storage.from("pdf-files").getPublicUrl(fileName);
+  return { pdfData: urlData.publicUrl, pdfName: file.name };
 }
 
-// === DASHBOARD STATS ===
+// ─── DASHBOARD STATS ────────────────────────────────────────
 export async function getDashboardStats() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  const trainingsSnap = await getDocs(trainingsCol);
-  const ordersSnap = await getDocs(ordersCol);
-
-  const totalUsers = usersSnap.size;
-  const totalTrainings = trainingsSnap.size;
-  const totalOrders = ordersSnap.size;
+  const { count: totalUsers } = await supabase.from("users").select("*", { count: "exact", head: true });
+  const { count: totalTrainings } = await supabase.from("trainings").select("*", { count: "exact", head: true });
+  const { data: orders } = await supabase.from("orders").select("total,status");
+  const totalOrders = orders?.length || 0;
   let totalRevenue = 0;
-  ordersSnap.forEach((d) => {
-    const data = d.data();
-    if (data.status === "completed") totalRevenue += data.total || 0;
+  (orders || []).forEach((o: any) => {
+    if (o.status === "completed") totalRevenue += o.total || 0;
   });
-
-  return { totalUsers, totalTrainings, totalOrders, totalRevenue };
+  return { totalUsers: totalUsers || 0, totalTrainings: totalTrainings || 0, totalOrders, totalRevenue };
 }
 
-// === CONVERSATIONS ===
+// ─── CONVERSATIONS ──────────────────────────────────────────
 export interface Conversation {
   id?: string;
   participants: string[];
@@ -258,28 +245,30 @@ export interface Conversation {
   createdAt?: any;
 }
 
-const conversationsCol = collection(db, "conversations");
-
 export async function getUserConversations(userId: string) {
-  const q = query(conversationsCol, where("participants", "array-contains", userId), orderBy("lastMessageTime", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase
+    .from("conversations")
+    .select("*")
+    .contains("participants", [userId])
+    .order("last_message_time", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function getConversation(id: string) {
-  const snap = await getDoc(doc(db, "conversations", id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } as Conversation : null;
+  const { data } = await supabase.from("conversations").select("*").eq("id", id).single();
+  return data ? (toCamel(data) as Conversation) : null;
 }
 
 export async function createConversation(data: Omit<Conversation, "id" | "createdAt">) {
-  return await addDoc(conversationsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("conversations").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function updateConversation(id: string, data: Partial<Conversation>) {
-  await updateDoc(doc(db, "conversations", id), data);
+  await supabase.from("conversations").update(toSnake(data)).eq("id", id);
 }
 
-// === MESSAGES ===
+// ─── MESSAGES ───────────────────────────────────────────────
 export interface Message {
   id?: string;
   conversationId: string;
@@ -291,22 +280,45 @@ export interface Message {
 }
 
 export async function getMessages(conversationId: string) {
-  const q = query(
-    collection(db, "conversations", conversationId, "messages"),
-    orderBy("createdAt", "asc")
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const { data } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true });
+  return mapRows(data || []);
 }
 
 export async function sendMessage(conversationId: string, data: Omit<Message, "id" | "createdAt">) {
-  return await addDoc(collection(db, "conversations", conversationId, "messages"), {
-    ...data,
-    createdAt: serverTimestamp(),
-  });
+  const payload = toSnake(data);
+  payload.conversation_id = conversationId;
+  const { data: inserted } = await supabase.from("messages").insert(payload).select("id").single();
+  return { id: inserted?.id };
 }
 
-// === NOTIFICATIONS ===
+// ─── REALTIME SUBSCRIPTIONS (replaces onSnapshot) ───────────
+export function subscribeToConversations(userId: string, callback: (convs: any[]) => void): () => void {
+  getUserConversations(userId).then(callback);
+  const channel = supabase
+    .channel(`convs:${userId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () => {
+      getUserConversations(userId).then(callback);
+    })
+    .subscribe();
+  return () => { supabase.removeChannel(channel); };
+}
+
+export function subscribeToMessages(conversationId: string, callback: (msgs: any[]) => void): () => void {
+  getMessages(conversationId).then(callback);
+  const channel = supabase
+    .channel(`msgs:${conversationId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` }, () => {
+      getMessages(conversationId).then(callback);
+    })
+    .subscribe();
+  return () => { supabase.removeChannel(channel); };
+}
+
+// ─── NOTIFICATIONS ──────────────────────────────────────────
 export interface Notification {
   id?: string;
   userId: string;
@@ -317,23 +329,21 @@ export interface Notification {
   createdAt: any;
 }
 
-const notificationsCol = collection(db, "notifications");
-
 export async function getUserNotifications(userId: string) {
-  const q = query(notificationsCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("notifications").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function createNotification(data: Omit<Notification, "id" | "createdAt">) {
-  return await addDoc(notificationsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("notifications").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function markNotificationRead(id: string) {
-  await updateDoc(doc(db, "notifications", id), { read: true });
+  await supabase.from("notifications").update({ read: true }).eq("id", id);
 }
 
-// === MEASUREMENTS / PROGRESS ===
+// ─── MEASUREMENTS ───────────────────────────────────────────
 export interface Measurement {
   id?: string;
   userId: string;
@@ -344,25 +354,22 @@ export interface Measurement {
   createdAt?: any;
 }
 
-const measurementsCol = collection(db, "measurements");
-
 export async function getUserMeasurements(userId: string) {
-  const q = query(measurementsCol, where("userId", "==", userId), orderBy("date", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("measurements").select("*").eq("user_id", userId).order("date", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function addMeasurement(data: Omit<Measurement, "id" | "createdAt">) {
-  return await addDoc(measurementsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("measurements").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function getLatestMeasurements(userId: string) {
-  const q = query(measurementsCol, where("userId", "==", userId), orderBy("date", "desc"), limit(10));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("measurements").select("*").eq("user_id", userId).order("date", { ascending: false }).limit(10);
+  return mapRows(data || []);
 }
 
-// === DOCUMENTS ===
+// ─── DOCUMENTS ──────────────────────────────────────────────
 export interface UserDocument {
   id?: string;
   userId: string;
@@ -374,23 +381,21 @@ export interface UserDocument {
   uploadedAt?: any;
 }
 
-const documentsCol = collection(db, "documents");
-
 export async function getUserDocuments(userId: string) {
-  const q = query(documentsCol, where("userId", "==", userId), orderBy("uploadedAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("documents").select("*").eq("user_id", userId).order("uploaded_at", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function addDocument(data: Omit<UserDocument, "id" | "uploadedAt">) {
-  return await addDoc(documentsCol, { ...data, uploadedAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("documents").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function deleteDocument(id: string) {
-  await deleteDoc(doc(db, "documents", id));
+  await supabase.from("documents").delete().eq("id", id);
 }
 
-// === PROGRESS PHOTOS ===
+// ─── PROGRESS PHOTOS ────────────────────────────────────────
 export interface ProgressPhoto {
   id?: string;
   userId: string;
@@ -401,19 +406,17 @@ export interface ProgressPhoto {
   uploadedAt?: any;
 }
 
-const progressPhotosCol = collection(db, "progressPhotos");
-
 export async function getUserProgressPhotos(userId: string) {
-  const q = query(progressPhotosCol, where("userId", "==", userId), orderBy("date", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("progress_photos").select("*").eq("user_id", userId).order("date", { ascending: false });
+  return mapRows(data || []);
 }
 
 export async function addProgressPhoto(data: Omit<ProgressPhoto, "id" | "uploadedAt">) {
-  return await addDoc(progressPhotosCol, { ...data, uploadedAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("progress_photos").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
-// === ACTIVITIES ===
+// ─── ACTIVITIES ─────────────────────────────────────────────
 export interface Activity {
   id?: string;
   userId: string;
@@ -423,19 +426,17 @@ export interface Activity {
   createdAt: any;
 }
 
-const activitiesCol = collection(db, "activities");
-
 export async function getUserActivities(userId: string) {
-  const q = query(activitiesCol, where("userId", "==", userId), orderBy("createdAt", "desc"), limit(10));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("activities").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10);
+  return mapRows(data || []);
 }
 
 export async function createActivity(data: Omit<Activity, "id" | "createdAt">) {
-  return await addDoc(activitiesCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("activities").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
-// === SETTINGS ===
+// ─── SETTINGS ───────────────────────────────────────────────
 export interface PlatformSettings {
   id?: string;
   platformName: string;
@@ -450,25 +451,26 @@ export interface PlatformSettings {
   updatedAt?: any;
 }
 
-const settingsCol = collection(db, "settings");
-
 export async function getSettings() {
-  const snap = await getDocs(settingsCol);
-  if (snap.empty) return null;
-  return { id: snap.docs[0].id, ...snap.docs[0].data() } as PlatformSettings;
+  const { data } = await supabase.from("settings").select("*").limit(1);
+  if (!data || data.length === 0) return null;
+  return toCamel(data[0]) as PlatformSettings;
 }
 
 export async function saveSettings(data: Omit<PlatformSettings, "id" | "updatedAt">) {
-  const snap = await getDocs(settingsCol);
-  if (snap.empty) {
-    return await addDoc(settingsCol, { ...data, updatedAt: serverTimestamp() });
+  const { data: existing } = await supabase.from("settings").select("id").limit(1);
+  const payload = toSnake(data);
+  payload.updated_at = new Date().toISOString();
+  if (existing && existing.length > 0) {
+    await supabase.from("settings").update(payload).eq("id", existing[0].id);
+    return existing[0].id;
   } else {
-    await updateDoc(doc(db, "settings", snap.docs[0].id), { ...data, updatedAt: serverTimestamp() });
-    return snap.docs[0].id;
+    const { data: inserted } = await supabase.from("settings").insert(payload).select("id").single();
+    return inserted?.id;
   }
 }
 
-// === PAYMENT METHODS ===
+// ─── PAYMENT METHODS ────────────────────────────────────────
 export interface PaymentMethod {
   id?: string;
   userId: string;
@@ -479,19 +481,17 @@ export interface PaymentMethod {
   createdAt?: any;
 }
 
-const paymentMethodsCol = collection(db, "paymentMethods");
-
 export async function getUserPaymentMethods(userId: string) {
-  const q = query(paymentMethodsCol, where("userId", "==", userId));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("payment_methods").select("*").eq("user_id", userId);
+  return mapRows(data || []);
 }
 
 export async function addPaymentMethod(data: Omit<PaymentMethod, "id" | "createdAt">) {
-  return await addDoc(paymentMethodsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("payment_methods").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
-// === WORKOUT PROGRAMS (Schede) ===
+// ─── WORKOUT PROGRAMS ───────────────────────────────────────
 export interface WorkoutExercise {
   name: string;
   muscleGroup: string;
@@ -529,32 +529,30 @@ export interface WorkoutProgram {
   createdAt?: any;
 }
 
-const programsCol = collection(db, "workoutPrograms");
-
 export async function getWorkoutPrograms() {
-  const q = query(programsCol, orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as WorkoutProgram));
+  const { data } = await supabase.from("workout_programs").select("*").order("created_at", { ascending: false });
+  return mapRows(data || []) as WorkoutProgram[];
 }
 
 export async function getWorkoutProgram(id: string) {
-  const snap = await getDoc(doc(db, "workoutPrograms", id));
-  return snap.exists() ? ({ id: snap.id, ...snap.data() } as WorkoutProgram) : null;
+  const { data } = await supabase.from("workout_programs").select("*").eq("id", id).single();
+  return data ? (toCamel(data) as WorkoutProgram) : null;
 }
 
 export async function createWorkoutProgram(data: Omit<WorkoutProgram, "id" | "createdAt">) {
-  return await addDoc(programsCol, { ...data, createdAt: serverTimestamp() });
+  const { data: inserted } = await supabase.from("workout_programs").insert(toSnake(data)).select("id").single();
+  return { id: inserted?.id };
 }
 
 export async function updateWorkoutProgram(id: string, data: Partial<WorkoutProgram>) {
-  await updateDoc(doc(db, "workoutPrograms", id), data);
+  await supabase.from("workout_programs").update(toSnake(data)).eq("id", id);
 }
 
 export async function deleteWorkoutProgram(id: string) {
-  await deleteDoc(doc(db, "workoutPrograms", id));
+  await supabase.from("workout_programs").delete().eq("id", id);
 }
 
-// === WORKOUT LOGS ===
+// ─── WORKOUT LOGS ───────────────────────────────────────────
 export interface WorkoutLog {
   id?: string;
   userId: string;
@@ -565,37 +563,25 @@ export interface WorkoutLog {
   notes?: string;
 }
 
-const workoutLogsCol = collection(db, "workoutLogs");
-
 export async function getUserWorkoutLogs(userId: string) {
-  const q = query(workoutLogsCol, where("userId", "==", userId), orderBy("completedAt", "desc"), limit(20));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+  const { data } = await supabase.from("workout_logs").select("*").eq("user_id", userId).order("completed_at", { ascending: false }).limit(20);
+  return mapRows(data || []);
 }
 
 export async function createWorkoutLog(data: Omit<WorkoutLog, "id">) {
-  return await addDoc(workoutLogsCol, { ...data, completedAt: serverTimestamp() });
+  await supabase.from("workout_logs").insert(toSnake(data));
 }
 
-// === USER ORDERS (filtered) ===
-export async function getUserOrders(userId: string) {
-  const q = query(ordersCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
-}
-
-// === SITE CONTENT (marketing/static images stored as data URLs; doc id = slot key) ===
+// ─── SITE CONTENT ───────────────────────────────────────────
 export async function getSiteContent(key: string): Promise<string | null> {
-  const snap = await getDoc(doc(db, "siteContent", key));
-  if (!snap.exists()) return null;
-  const image = (snap.data() as any).image;
-  return typeof image === "string" && image ? image : null;
+  const { data } = await supabase.from("site_content").select("image").eq("id", key).single();
+  if (!data) return null;
+  return data.image || null;
 }
 
 export async function saveSiteContent(key: string, imageDataUrl: string): Promise<void> {
-  await setDoc(
-    doc(db, "siteContent", key),
-    { image: imageDataUrl, updatedAt: serverTimestamp() },
-    { merge: true }
+  await supabase.from("site_content").upsert(
+    { id: key, image: imageDataUrl, updated_at: new Date().toISOString() },
+    { onConflict: "id" }
   );
 }

@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import { Send, Paperclip, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getMessages, sendMessage, getConversation } from "@/lib/firebase-firestore";
+import { getMessages, sendMessage, getConversation, subscribeToMessages } from "@/lib/firebase-firestore";
 import { useAuth } from "@/contexts/AuthContext";
-import { onSnapshot, collection, query, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 interface MessageListProps {
   conversationId?: string;
@@ -22,12 +20,8 @@ export function MessageList({ conversationId }: MessageListProps) {
 
   useEffect(() => {
     if (!conversationId || !user) return;
-    const q = query(
-      collection(db, "conversations", conversationId, "messages"),
-      orderBy("createdAt", "asc")
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setMessages(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const unsub = subscribeToMessages(conversationId, (msgs) => {
+      setMessages(msgs);
       setLoading(false);
     });
     getConversation(conversationId).then(setConversation);
