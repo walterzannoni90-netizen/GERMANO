@@ -12,6 +12,7 @@ import {
   deleteWorkoutProgram,
   updateWorkoutProgram,
   uploadImage,
+  uploadPDF,
   type WorkoutProgram,
   type WorkoutDay,
   type WorkoutExercise,
@@ -69,6 +70,8 @@ export default function AdminPrograms() {
   const [form, setForm] = useState<ProgramForm>(emptyForm);
   const [days, setDays] = useState<WorkoutDay[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFileName, setPdfFileName] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -129,6 +132,8 @@ export default function AdminPrograms() {
     setForm(emptyForm);
     setDays([]);
     setImageFile(null);
+    setPdfFile(null);
+    setPdfFileName("");
     setEditingId(null);
     setShowForm(false);
   };
@@ -148,6 +153,8 @@ export default function AdminPrograms() {
     });
     setDays(p.days ? p.days.map((d) => ({ ...d, exercises: d.exercises.map((ex) => ({ ...ex })) })) : []);
     setImageFile(null);
+    setPdfFile(null);
+    setPdfFileName(p.pdfName || "");
     setEditingId(p.id!);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -161,6 +168,13 @@ export default function AdminPrograms() {
       let image = existing?.image || DEFAULT_IMAGE;
       if (imageFile) {
         image = await uploadImage(imageFile);
+      }
+      let pdfName = existing?.pdfName || "";
+      let pdfData = existing?.pdfData || "";
+      if (pdfFile) {
+        const result = await uploadPDF(pdfFile);
+        pdfName = result.pdfName;
+        pdfData = result.pdfData;
       }
       const payload = {
         title: form.title,
@@ -176,6 +190,8 @@ export default function AdminPrograms() {
         image,
         active: existing ? existing.active !== false : true,
         days,
+        pdfName,
+        pdfData,
       };
       if (editingId) {
         await updateWorkoutProgram(editingId, payload);
@@ -284,6 +300,18 @@ export default function AdminPrograms() {
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   className={fileInputClass}
                 />
+              </div>
+              <div>
+                <label className="text-sm text-neutral-400 mb-1 block">PDF scheda (opzionale, max 900 KB)</label>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                  className={fileInputClass}
+                />
+                {pdfFileName && (
+                  <p className="text-xs text-green-500 mt-1">PDF: {pdfFileName}</p>
+                )}
               </div>
             </div>
             <div>

@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Target, MapPin, Dumbbell, CheckCircle, Lock } from "lucide-react";
+import { ArrowLeft, Clock, Target, MapPin, Dumbbell, CheckCircle, Lock, FileText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getWorkoutProgram, hasUserPurchased, addUserPurchase, createOrder, type WorkoutProgram, type WorkoutDay } from "@/lib/firebase-firestore";
 
@@ -168,9 +168,19 @@ function DetailContent() {
         </Card>
       ) : (
         <>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4 flex-wrap">
             <CheckCircle className="h-6 w-6 text-green-500" />
             <span className="text-green-500 font-semibold">Programma acquistato · {days.length} giorni</span>
+            {program.pdfData && (
+              <a
+                href={program.pdfData}
+                download={program.pdfName || "scheda-allenamento.pdf"}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500/20 transition-all text-sm font-medium"
+              >
+                <FileText className="h-4 w-4" />
+                Scarica PDF {program.pdfName ? `(${program.pdfName})` : ""}
+              </a>
+            )}
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-2">

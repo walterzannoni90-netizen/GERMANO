@@ -117,7 +117,7 @@ export default function MyTrainingsPage() {
                 <span className="flex items-center gap-1"><Target className="h-4 w-4 text-green-500" />{program.goal}</span>
                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-green-500" />{program.target}</span>
               </div>
-              <Button className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={(e) => { e.stopPropagation(); router.push(`/trainings/${program.id}`); }}>
+              <Button className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={(e) => { e.stopPropagation();                     router.push(`/trainings/detail?id=${program.id}`); }}>
                 Visualizza scheda <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </CardContent>

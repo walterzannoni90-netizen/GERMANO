@@ -209,6 +209,24 @@ export async function uploadImage(file: File): Promise<string> {
   }
 }
 
+const MAX_PDF_BYTES = 900 * 1024;
+
+export async function uploadPDF(file: File): Promise<{ pdfData: string; pdfName: string }> {
+  if (file.type !== "application/pdf") {
+    throw new Error("Il file selezionato non è un PDF valido");
+  }
+  if (file.size > MAX_PDF_BYTES) {
+    throw new Error("Il PDF non può superare i 900 KB");
+  }
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Errore durante la lettura del file PDF"));
+    reader.readAsDataURL(file);
+  });
+  return { pdfData: base64, pdfName: file.name };
+}
+
 // === DASHBOARD STATS ===
 export async function getDashboardStats() {
   const usersSnap = await getDocs(collection(db, "users"));
@@ -504,6 +522,8 @@ export interface WorkoutProgram {
   description: string;
   active: boolean;
   days: WorkoutDay[];
+  pdfName?: string;
+  pdfData?: string;
   createdAt?: any;
 }
 

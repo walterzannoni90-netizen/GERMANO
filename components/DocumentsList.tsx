@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import { getUserDocuments, addDocument } from "@/lib/firebase-firestore";
+import { Download, Upload } from "lucide-react";
+import { getUserDocuments, addDocument, uploadPDF } from "@/lib/firebase-firestore";
 import { useAuth } from "@/contexts/AuthContext";
 
 const iconMap: Record<string, string> = {
@@ -18,6 +18,8 @@ export function DocumentsList() {
   const { user } = useAuth();
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -33,15 +35,66 @@ export function DocumentsList() {
     })();
   }, [user]);
 
+  const handleUpload = async (file: File) => {
+    if (!user || uploading) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toUpperCase() || "PDF";
+      const fileSizeKB = Math.round(file.size / 1024);
+      const fileSize = fileSizeKB > 1024 ? `${(fileSizeKB / 1024).toFixed(1)} MB` : `${fileSizeKB} KB`;
+      const result = await uploadPDF(file);
+      const docRef = await addDocument({
+        userId: user.uid,
+        name: file.name,
+        type: ext === "PDF" ? "PDF" : "DOC",
+        category: "program",
+        fileUrl: result.pdfData,
+        fileSize,
+      });
+      setDocuments((prev) => [{
+        id: docRef.id,
+        userId: user.uid,
+        name: file.name,
+        type: ext === "PDF" ? "PDF" : "DOC",
+        category: "program",
+        fileUrl: result.pdfData,
+        fileSize,
+        uploadedAt: new Date(),
+      }, ...prev]);
+    } catch (e: any) {
+      alert(e.message || "Errore durante il caricamento");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   if (!user) return null;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white">Documenti</h2>
-        <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full">
-          + Carica documento
-        </Button>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/pdf,image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleUpload(f);
+            }}
+          />
+          <Button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            {uploading ? "Caricamento..." : "Carica documento"}
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -54,7 +107,9 @@ export function DocumentsList() {
           ))
         ) : documents.length === 0 ? (
           <div className="col-span-full text-center py-20 text-neutral-500">
-            Nessun documento caricato.
+            <Upload className="h-12 w-12 mx-auto mb-4 text-neutral-600" />
+            <p className="text-lg mb-2">Nessun documento caricato</p>
+            <p className="text-sm">Carica il tuo primo documento usando il pulsante sopra.</p>
           </div>
         ) : (
           documents.map((doc) => (
@@ -74,14 +129,19 @@ export function DocumentsList() {
                   <span>{doc.fileSize}</span>
                 </div>
                 <div className="mt-4 flex gap-2">
-                  <Button variant="outline" className="border-neutral-600 text-xs rounded-full hover:bg-neutral-800 flex-1">
-                    <Download size={14} className="mr-1" /> Scarica
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-neutral-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                  </Button>
+                  {doc.fileUrl ? (
+                    <a
+                      href={doc.fileUrl}
+                      download={doc.name}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-600 px-4 py-2 text-xs font-medium hover:bg-neutral-800 transition-all flex-1 text-neutral-300"
+                    >
+                      <Download size={14} /> Scarica
+                    </a>
+                  ) : (
+                    <Button variant="outline" className="border-neutral-600 text-xs rounded-full hover:bg-neutral-800 flex-1" disabled>
+                      <Download size={14} className="mr-1" /> Scarica
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

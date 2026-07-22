@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, ExternalLink } from "lucide-react";
+import { Calendar, ExternalLink, Clock, CheckCircle } from "lucide-react";
 
 export function CalendarWidget() {
   const bookingUrl = "https://calendar.app.google/v9LYmPS8tFRukoYG8";
@@ -21,34 +21,32 @@ export function CalendarWidget() {
             Scegli data e ora che preferisci direttamente sul calendario di Germano Poleselli.
           </p>
           
-          <div className="rounded-xl bg-neutral-800/50 p-4 text-center">
-            <Calendar className="h-12 w-12 mx-auto mb-3 text-green-500" />
-            <p className="text-white font-semibold mb-1">Calendario Reale</p>
-            <p className="text-xs text-neutral-400 mb-4">
-              Visualizza la disponibilità in tempo reale e prenota la tua consulenza.
-            </p>
+          <div className="rounded-xl bg-neutral-800/50 p-6 text-center space-y-4">
+            <div className="flex justify-center gap-6">
+              <div className="flex flex-col items-center gap-1">
+                <Clock className="h-6 w-6 text-green-500" />
+                <span className="text-xs text-neutral-400">Orari flessibili</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                <span className="text-xs text-neutral-400">Conferma immediata</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Calendar className="h-6 w-6 text-green-500" />
+                <span className="text-xs text-neutral-400">Tempo reale</span>
+              </div>
+            </div>
             <Button
               onClick={() => window.open(bookingUrl, "_blank")}
               className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Apri calendario
+              Apri calendario e prenota
             </Button>
+            <p className="text-xs text-neutral-500">
+              Si apre una nuova finestra con il calendario di Google.
+            </p>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-neutral-900/50 border-neutral-800">
-        <CardHeader>
-          <CardTitle className="text-lg text-white">Calendario</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0 overflow-hidden rounded-b-xl">
-          <iframe
-            src={bookingUrl}
-            className="w-full h-[400px] border-0"
-            title="Calendario Prenotazioni"
-            allow="calendar; clipboard-read; clipboard-write"
-          />
         </CardContent>
       </Card>
     </div>

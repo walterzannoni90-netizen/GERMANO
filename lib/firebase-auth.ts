@@ -7,7 +7,7 @@ import {
   User,
 } from "firebase/auth";
 import { auth } from "./firebase";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
 export async function signUp(
@@ -18,12 +18,14 @@ export async function signUp(
 ) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName: `${name} ${surname}` });
+  const usersSnap = await getDocs(collection(db, "users"));
+  const isFirstUser = usersSnap.empty;
   await setDoc(doc(db, "users", cred.user.uid), {
     uid: cred.user.uid,
     name,
     surname,
     email,
-    role: "client",
+    role: isFirstUser ? "admin" : "client",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     points: 0,
