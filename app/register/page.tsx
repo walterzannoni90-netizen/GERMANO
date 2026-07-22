@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { signUp } from "@/lib/firebase-auth";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -17,6 +15,8 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [done, setDone] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,13 +34,33 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await signUp(email, password, name, surname);
-      router.push("/dashboard");
+      setDone(true);
     } catch (err: any) {
       setError(err.message || "Errore durante la registrazione");
     } finally {
       setLoading(false);
     }
   };
+
+  if (done) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-dark p-4">
+        <Card className="bg-neutral-900/50 border-neutral-800 w-full max-w-md text-center p-8">
+          <div className="text-6xl mb-4">📧</div>
+          <h2 className="text-2xl font-bold text-white mb-2">Registrazione completata!</h2>
+          <p className="text-neutral-400 mb-6">
+            Ti abbiamo inviato un&apos;email di conferma a <strong className="text-white">{email}</strong>.
+            Clicca il link nell&apos;email per attivare il tuo account e accedere.
+          </p>
+          <Link href="/login">
+            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8">
+              Vai al login
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-dark p-4">

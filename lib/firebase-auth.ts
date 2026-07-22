@@ -65,23 +65,27 @@ export async function signUp(
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: `${name} ${surname}` } },
+    options: { data: { full_name: `${name} ${surname}`, name, surname } },
   });
   if (authError) throw authError;
   if (!authData.user) throw new Error("Registrazione fallita");
 
-  const { data: existingUsers } = await supabase.from("users").select("id").limit(1);
-  const isFirstUser = !existingUsers || existingUsers.length === 0;
+  try {
+    const { data: existingUsers } = await supabase.from("users").select("id").limit(1);
+    const isFirstUser = !existingUsers || existingUsers.length === 0;
 
-  const { error: insertError } = await supabase.from("users").insert({
-    id: authData.user.id,
-    uid: authData.user.id,
-    name,
-    surname,
-    email,
-    role: isFirstUser ? "admin" : "client",
-  });
-  if (insertError) throw insertError;
+    await supabase.from("users").insert({
+      id: authData.user.id,
+      uid: authData.user.id,
+      name,
+      surname,
+      email,
+      role: isFirstUser ? "admin" : "client",
+    });
+  } catch {
+    // Se l'inserimento fallisce (es. email da confermare), verrà gestito
+    // dal trigger DB o al primo login
+  }
 
   return authData.user;
 }

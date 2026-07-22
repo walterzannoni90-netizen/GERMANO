@@ -53,12 +53,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = session?.user ?? null;
       setSupabaseUser(u);
       if (u) {
-        const data = await getUserData(u.id);
-        if (data) {
-          if (u.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
-            await supabase.from("users").update({ role: "admin" }).eq("uid", u.id);
-            data.role = "admin";
-          }
+        let data = await getUserData(u.id);
+        if (!data) {
+          await supabase.from("users").insert({
+            id: u.id,
+            uid: u.id,
+            name: u.user_metadata?.name || "",
+            surname: u.user_metadata?.surname || "",
+            email: u.email,
+            role: "client",
+          });
+          data = await getUserData(u.id);
+        }
+        if (data && u.email === "ptgermanopoleselli@gmail.com" && data.role !== "admin") {
+          await supabase.from("users").update({ role: "admin" }).eq("uid", u.id);
+          data.role = "admin";
         }
         setUserData(data);
       } else {
