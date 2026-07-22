@@ -9,6 +9,8 @@ import {
 } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { collection, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { getUserData, UserData, logOut as firebaseLogOut } from "@/lib/firebase-auth";
 
 interface AuthContextType {
@@ -39,6 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(firebaseUser);
       if (firebaseUser) {
         const data = await getUserData(firebaseUser.uid);
+        if (data && data.role !== "admin") {
+          const adminQuery = query(collection(db, "users"), where("role", "==", "admin"));
+          const adminSnap = await getDocs(adminQuery);
+          if (adminSnap.empty) {
+            await updateDoc(doc(db, "users", firebaseUser.uid), { role: "admin" });
+            data.role = "admin";
+          }
+        }
         setUserData(data);
       } else {
         setUserData(null);
