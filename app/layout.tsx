@@ -8,7 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Germano - Allenamenti e Consulenze Fitness",
+  title: "germanopoleselli.com - Allenamenti e Consulenze Fitness",
   description: "Piattaforma completa per allenamenti, consulenze e progressi fitness",
 };
 

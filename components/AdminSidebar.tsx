@@ -41,7 +41,7 @@ export function AdminSidebar() {
             <Shield className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-lg font-bold text-white">GERMANO</p>
+            <p className="text-lg font-bold text-white">germanopoleselli.com</p>
             <p className="text-xs text-green-500">Admin Panel</p>
           </div>
         </Link>

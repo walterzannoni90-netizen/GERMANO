@@ -70,7 +70,7 @@ export default function RegisterPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-black">
               <span className="font-bold text-2xl">G</span>
             </div>
-            <span className="text-3xl font-bold text-white">GERMANO</span>
+            <span className="text-3xl font-bold text-white">germanopoleselli.com</span>
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Inizia il tuo viaggio!</h1>
           <p className="text-neutral-400">Crea il tuo account e raggiungi i tuoi obiettivi fitness.</p>

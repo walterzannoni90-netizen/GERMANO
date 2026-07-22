@@ -48,7 +48,7 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-black">
             <span className="font-bold text-2xl">G</span>
           </div>
-          <span className="text-2xl font-bold text-white hidden md:block">GERMANO</span>
+          <span className="text-2xl font-bold text-white hidden md:block">germanopoleselli.com</span>
         </Link>
       </div>
 

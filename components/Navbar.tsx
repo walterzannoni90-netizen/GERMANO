@@ -20,7 +20,7 @@ export function Navbar({ className }: NavbarProps) {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-black">
             <span className="font-bold text-lg">G</span>
           </div>
-          <span className="text-xl font-bold text-white hidden md:block">GERMANO</span>
+          <span className="text-xl font-bold text-white hidden md:block">germanopoleselli.com</span>
         </div>
       </div>
 
