@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { getSiteContent } from "@/lib/firebase-firestore";
 
 const HERO_DEFAULT =
   "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop";
 
 export function Hero() {
+  const { user } = useAuth();
   const [bgImage, setBgImage] = useState(HERO_DEFAULT);
 
   useEffect(() => {
@@ -34,9 +36,9 @@ export function Hero() {
           Piattaforma completa per raggiungere i tuoi obiettivi fitness con programmi personalizzati, consulenze professionali e monitoraggio dei progressi.
         </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register">
+            <Link href={user ? "/dashboard" : "/register"}>
               <Button className="h-14 px-8 text-lg rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/25 w-full sm:w-auto">
-                Inizia gratis
+                {user ? "Vai alla dashboard" : "Inizia gratis"}
               </Button>
             </Link>
             <Link href="/trainings">
