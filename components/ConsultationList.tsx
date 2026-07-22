@@ -76,7 +76,7 @@ export function ConsultationList() {
   return (
     <div className="space-y-4">
       {consultants.map((consultant: any) => (
-        <Card key={consultant.id} className="bg-neutral-900/50 border-neutral-800 hover:border-green-500/50 transition-all">
+        <Card key={consultant.id} className="bg-neutral-900/50 border-neutral-800 hover:border-purple-500/50 transition-all">
           <div className="flex items-start gap-4 p-6">
             <img
               src={consultant.image}
@@ -85,7 +85,7 @@ export function ConsultationList() {
             />
             <div className="flex-1">
               <CardTitle className="text-xl text-white mb-2">{consultant.name}</CardTitle>
-              <p className="text-green-500 font-medium mb-2">{consultant.specialty}</p>
+              <p className="text-purple-500 font-medium mb-2">{consultant.specialty}</p>
               <div className="flex items-center gap-4 text-sm text-neutral-400 mb-4">
                 <span className="flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -101,7 +101,7 @@ export function ConsultationList() {
                 </span>
               </div>
               <div className="flex gap-3">
-                <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? "/consultations" : "/login")}>
+                <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => router.push(user ? "/consultations" : "/login")}>
                   {user ? "Prenota consulenza" : "Accedi per prenotare"}
                 </Button>
                 <Button variant="outline" className="border-neutral-600 text-white hover:bg-neutral-800 rounded-full" onClick={() => window.open("https://calendar.app.google/v9LYmPS8tFRukoYG8", "_blank")}>

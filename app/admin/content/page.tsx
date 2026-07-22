@@ -18,7 +18,7 @@ const CONSULTANT_DEFAULT =
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80";
 
 const fileInputClass =
-  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500";
+  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-purple-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500";
 
 interface ConsultantItem {
   name: string;
@@ -171,7 +171,7 @@ export default function AdminContent() {
             </Button>
             {heroUploading && <span className="text-sm text-neutral-400">Caricamento...</span>}
             {!heroUploading && heroMessage && (
-              <span className={`text-sm ${heroMessage.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+              <span className={`text-sm ${heroMessage.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>
                 {heroMessage}
               </span>
             )}
@@ -212,7 +212,7 @@ export default function AdminContent() {
                         <p className="font-medium text-white">{c.name}</p>
                         {c.hasOverride && <Badge variant="success">Personalizzata</Badge>}
                       </div>
-                      <p className="text-sm text-green-500">{c.specialty}</p>
+                      <p className="text-sm text-purple-500">{c.specialty}</p>
                     </div>
                   </div>
                   <input
@@ -234,7 +234,7 @@ export default function AdminContent() {
             </div>
           )}
           {consultantMessage && (
-            <p className={`text-sm ${consultantMessage.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+            <p className={`text-sm ${consultantMessage.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>
               {consultantMessage}
             </p>
           )}

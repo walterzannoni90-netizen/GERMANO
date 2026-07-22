@@ -14,7 +14,7 @@ const iconMap: Record<string, string> = {
 };
 
 const colorMap: Record<string, string> = {
-  appointment: "border-l-green-500",
+  appointment: "border-l-purple-500",
   payment: "border-l-blue-500",
   message: "border-l-purple-500",
   progress: "border-l-orange-500",
@@ -71,10 +71,10 @@ export function NotificationsList() {
               className={`flex gap-4 p-4 rounded-xl transition-colors cursor-pointer ${
                 notification.read
                   ? "bg-neutral-800/30 hover:bg-neutral-800/50"
-                  : "bg-green-500/5 hover:bg-green-500/10"
-              } ${colorMap[notification.type] || "border-l-green-500"} border-l-4`}
+                  : "bg-purple-500/5 hover:bg-purple-500/10"
+              } ${colorMap[notification.type] || "border-l-purple-500"} border-l-4`}
             >
-              <div className={`text-2xl ${notification.read ? "text-neutral-500" : "text-green-500"}`}>
+              <div className={`text-2xl ${notification.read ? "text-neutral-500" : "text-purple-500"}`}>
                 {iconMap[notification.type] || "🔔"}
               </div>
               <div className="flex-1">
@@ -87,7 +87,7 @@ export function NotificationsList() {
                 <p className="text-sm text-neutral-400">{notification.description}</p>
               </div>
               {!notification.read && (
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
               )}
             </div>
           ))

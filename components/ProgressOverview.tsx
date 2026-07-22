@@ -61,7 +61,7 @@ export function ProgressOverview() {
             <span className="text-sm text-neutral-400">Allenamenti completati</span>
             <span className="text-sm font-semibold text-white">{completed}/{total} ({(completed/total*100).toFixed(0)}%)</span>
           </div>
-          <Progress value={(completed/total)*100} className="h-2 bg-green-500" />
+          <Progress value={(completed/total)*100} className="h-2 bg-purple-500" />
         </div>
         
         <div>
@@ -73,8 +73,8 @@ export function ProgressOverview() {
         </div>
         
         <div className="grid grid-cols-3 gap-2">
-          <div className="text-center p-3 rounded-xl bg-green-500/10">
-            <div className="text-2xl font-bold text-green-500">{userData?.points || 0}</div>
+          <div className="text-center p-3 rounded-xl bg-purple-500/10">
+            <div className="text-2xl font-bold text-purple-500">{userData?.points || 0}</div>
             <div className="text-xs text-neutral-400">Punti</div>
           </div>
           <div className="text-center p-3 rounded-xl bg-orange-500/10">

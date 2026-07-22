@@ -70,7 +70,7 @@ export function ProgressGraphs() {
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Peso corporeo (kg)</h4>
                 {weeks[0]?.weight > weeks[weeks.length - 1]?.weight ? (
-                  <span className="text-sm text-green-500">Trend positivo! 👍</span>
+                  <span className="text-sm text-purple-500">Trend positivo! 👍</span>
                 ) : (
                   <span className="text-sm text-blue-500">In evoluzione</span>
                 )}
@@ -81,7 +81,7 @@ export function ProgressGraphs() {
                     <span className="text-sm text-neutral-400 w-24">{week.week}</span>
                     <div className="flex-1 relative h-2 bg-neutral-800 rounded-full overflow-hidden">
                       <div 
-                        className="absolute left-0 top-0 h-full bg-green-500 rounded-full"
+                        className="absolute left-0 top-0 h-full bg-purple-500 rounded-full"
                         style={{ width: `${Math.min((week.weight / 85) * 100, 100)}%` }}
                       />
                     </div>
@@ -96,7 +96,7 @@ export function ProgressGraphs() {
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-white">Misure vita (cm)</h4>
                   {weeks[0]?.measurement > weeks[weeks.length - 1]?.measurement ? (
-                    <span className="text-sm text-green-500">In riduzione!</span>
+                    <span className="text-sm text-purple-500">In riduzione!</span>
                   ) : (
                     <span className="text-sm text-blue-500">In evoluzione</span>
                   )}

@@ -112,7 +112,7 @@ export function ProgressPhotos() {
                 className="aspect-video object-cover rounded-xl"
               />
               <div className="absolute top-3 right-3">
-                <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs">Ultima</span>
+                <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs">Ultima</span>
               </div>
               <div className="absolute bottom-3 left-3">
                 <span className="bg-black/70 text-white px-2 py-1 rounded-full text-xs">{after.date}</span>
@@ -125,13 +125,13 @@ export function ProgressPhotos() {
           )}
         </div>
 
-        <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
+        <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-white mb-1">Confronto immagini</h4>
               <p className="text-sm text-neutral-400">Visualizza le tue foto a confronto con animazioni fluide</p>
             </div>
-            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => alert("Carica foto 'Prima' e 'Dopo' per usare il comparatore.")}>
+            <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => alert("Carica foto 'Prima' e 'Dopo' per usare il comparatore.")}>
               Apri comparatore
             </Button>
           </div>

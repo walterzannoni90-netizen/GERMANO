@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const labels: Record<string, { title: string; icon: string; color: string; goal: number; unit: string }> = {
   weight: { title: "Peso corporeo", icon: "⚖️", color: "text-blue-500", goal: 75, unit: "kg" },
   bodyFat: { title: "Grasso corporeo", icon: "📊", color: "text-red-500", goal: 15, unit: "%" },
-  arm: { title: "Misure braccia", icon: "📏", color: "text-green-500", goal: 35, unit: "cm" },
+  arm: { title: "Misure braccia", icon: "📏", color: "text-purple-500", goal: 35, unit: "cm" },
   waist: { title: "Misure vita", icon: "📏", color: "text-orange-500", goal: 78, unit: "cm" },
   thigh: { title: "Misure cosce", icon: "📏", color: "text-purple-500", goal: 50, unit: "cm" },
   steps: { title: "Passi giornalieri", icon: "👣", color: "text-pink-500", goal: 10000, unit: "" },
@@ -56,7 +56,7 @@ export function ProgressStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {statEntries.map((stat, index) => (
-        <Card key={index} className="bg-neutral-900/50 border-neutral-800 hover:border-green-500/50 transition-all">
+        <Card key={index} className="bg-neutral-900/50 border-neutral-800 hover:border-purple-500/50 transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">{stat.title}</CardTitle>
             <span className={`text-xl ${stat.color}`}>{stat.icon}</span>

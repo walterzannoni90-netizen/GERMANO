@@ -74,7 +74,7 @@ export default function AdminSettings() {
       </div>
 
       {message && (
-        <p className={`text-sm ${message.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+        <p className={`text-sm ${message.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>
           {message}
         </p>
       )}
@@ -144,7 +144,7 @@ export default function AdminSettings() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+          className="bg-purple-500 hover:bg-purple-600 text-white rounded-full"
         >
           {saving ? "Salvataggio..." : "Salva impostazioni"}
         </Button>

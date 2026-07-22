@@ -6,7 +6,7 @@ const Badge = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement> & { variant?: "success" | "warning" | "danger" | "neutral" }
 >(({ className, variant = "neutral", ...props }, ref) => {
   const variants = {
-    success: "bg-green-500/10 text-green-400 border-green-500/20",
+    success: "bg-purple-500/10 text-purple-400 border-purple-500/20",
     warning: "bg-orange-500/10 text-orange-400 border-orange-500/20",
     danger: "bg-red-500/10 text-red-400 border-red-500/20",
     neutral: "bg-neutral-700/30 text-neutral-300 border-neutral-600/30",

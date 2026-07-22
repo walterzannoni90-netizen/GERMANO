@@ -37,7 +37,7 @@ export function HowItWorks() {
             <div className="absolute -left-12 top-1/2 -translate-y-1/2 hidden lg:block text-6xl font-bold text-neutral-800 dark:text-neutral-900">
               {index + 1}
             </div>
-            <div className="relative z-10 rounded-2xl bg-neutral-800/50 p-8 border border-neutral-700/50 text-center hover:border-green-500/30 transition-all hover:-translate-y-2">
+            <div className="relative z-10 rounded-2xl bg-neutral-800/50 p-8 border border-neutral-700/50 text-center hover:border-purple-500/30 transition-all hover:-translate-y-2">
               <div className="text-5xl mb-6">{step.icon}</div>
               <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
               <p className="text-neutral-400">{step.description}</p>

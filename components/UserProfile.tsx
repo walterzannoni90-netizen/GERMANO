@@ -115,12 +115,12 @@ export function UserProfile() {
               variant="secondary"
               onClick={() => photoInputRef.current?.click()}
               disabled={uploadingPhoto}
-              className="absolute bottom-0 right-0 rounded-full bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0"
+              className="absolute bottom-0 right-0 rounded-full bg-purple-500 hover:bg-purple-600 text-white h-8 w-8 p-0"
             >
               📷
             </Button>
             {(uploadingPhoto || photoMessage) && (
-              <p className={`mt-2 text-xs ${photoMessage.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+              <p className={`mt-2 text-xs ${photoMessage.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>
                 {uploadingPhoto ? "Caricamento..." : photoMessage}
               </p>
             )}
@@ -134,7 +134,7 @@ export function UserProfile() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 />
               </div>
               <div>
@@ -143,7 +143,7 @@ export function UserProfile() {
                   type="text"
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 />
               </div>
             </div>
@@ -165,7 +165,7 @@ export function UserProfile() {
                   type="date"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 />
               </div>
               <div>
@@ -173,7 +173,7 @@ export function UserProfile() {
                 <select
                   value={sex}
                   onChange={(e) => setSex(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 >
                   <option>Maschio</option>
                   <option>Femmina</option>
@@ -189,7 +189,7 @@ export function UserProfile() {
                   type="number"
                   value={height}
                   onChange={(e) => setHeight(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 />
               </div>
               <div>
@@ -198,7 +198,7 @@ export function UserProfile() {
                   type="number"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 />
               </div>
               <div>
@@ -206,7 +206,7 @@ export function UserProfile() {
                 <select
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
-                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-full h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                 >
                   <option>Perdere peso</option>
                   <option>Guadagnare massa muscolare</option>
@@ -217,7 +217,7 @@ export function UserProfile() {
             </div>
             
             {message && (
-              <p className={`text-sm ${message.includes("Errore") ? "text-red-500" : "text-green-500"}`}>
+              <p className={`text-sm ${message.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>
                 {message}
               </p>
             )}
@@ -225,7 +225,7 @@ export function UserProfile() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-green-500 hover:bg-green-600 text-white rounded-full w-full md:w-auto"
+              className="bg-purple-500 hover:bg-purple-600 text-white rounded-full w-full md:w-auto"
             >
               {saving ? "Salvataggio..." : "Salva modifiche"}
             </Button>

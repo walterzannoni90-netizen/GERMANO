@@ -60,7 +60,7 @@ export function UpcomingSessions() {
               <div className="flex-1">
                 <h4 className="font-semibold text-white text-sm">{session.title || session.professionalName || "Consulenza"}</h4>
                 <p className="text-xs text-neutral-400 mb-1">{session.professionalName || session.specialty}</p>
-                <div className="flex items-center gap-2 text-xs text-green-500">
+                <div className="flex items-center gap-2 text-xs text-purple-500">
                   <span>{session.date ? new Date(session.date).toLocaleDateString("it-IT") : ""}</span>
                   {session.time && <><span>•</span><span>{session.time}</span></>}
                 </div>

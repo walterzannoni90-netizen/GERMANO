@@ -82,7 +82,7 @@ export default function AdminConsultations() {
                       <div className="flex items-center justify-end gap-2">
                         {c.status === "booked" && (
                           <>
-                            <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "completed")} className="text-green-400">
+                            <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "completed")} className="text-purple-400">
                               <Check className="h-4 w-4 mr-1" /> Completa
                             </Button>
                             <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "cancelled")} className="text-red-400">

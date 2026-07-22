@@ -72,7 +72,7 @@ export function PaymentHistory() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-white">€{(payment.total || 0).toFixed(2)}</p>
-                  <p className={`text-xs ${payment.status === "completed" ? "text-green-500" : "text-orange-500"}`}>
+                  <p className={`text-xs ${payment.status === "completed" ? "text-purple-500" : "text-orange-500"}`}>
                     {payment.status === "completed" ? "Completato" : payment.status}
                   </p>
                 </div>
@@ -82,7 +82,7 @@ export function PaymentHistory() {
         )}
         
         <div className="mt-6 text-center">
-          <button className="text-green-500 hover:text-green-400 text-sm font-medium" onClick={() => alert("Funzionalità di download ricevute in arrivo.")}>
+          <button className="text-purple-500 hover:text-purple-400 text-sm font-medium" onClick={() => alert("Funzionalità di download ricevute in arrivo.")}>
             Scarica tutte le ricevute
           </button>
         </div>

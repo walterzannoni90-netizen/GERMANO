@@ -51,7 +51,7 @@ export default function AdminPayments() {
         </div>
         <div className="text-right">
           <p className="text-sm text-neutral-400">Fatturato totale</p>
-          <p className="text-2xl font-bold text-green-500">€{totalRevenue.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-purple-500">€{totalRevenue.toFixed(2)}</p>
         </div>
       </div>
 

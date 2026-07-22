@@ -20,7 +20,7 @@ export function PaymentMethods() {
             key={method.id}
             className={`
               p-4 rounded-xl border transition-all
-              ${method.isDefault ? "border-green-500 bg-green-500/5" : "border-neutral-700 hover:border-neutral-600"}
+              ${method.isDefault ? "border-purple-500 bg-purple-500/5" : "border-neutral-700 hover:border-neutral-600"}
             `}
           >
             <div className="flex items-center justify-between">
@@ -34,7 +34,7 @@ export function PaymentMethods() {
                 </div>
               </div>
               {method.isDefault ? (
-                <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
                   Predefinito
                 </span>
               ) : (
@@ -46,7 +46,7 @@ export function PaymentMethods() {
           </div>
         ))}
         
-        <Button className="w-full border border-green-500/50 text-green-500 hover:bg-green-500/10 hover:text-green-400 rounded-full" onClick={() => alert("Integrazione con Stripe in arrivo.")}>
+        <Button className="w-full border border-purple-500/50 text-purple-500 hover:bg-purple-500/10 hover:text-purple-400 rounded-full" onClick={() => alert("Integrazione con Stripe in arrivo.")}>
           + Aggiungi nuovo metodo
         </Button>
       </CardContent>

@@ -89,7 +89,7 @@ export function DocumentsList() {
           <Button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+            className="bg-purple-500 hover:bg-purple-600 text-white rounded-full"
           >
             <Upload className="h-4 w-4 mr-2" />
             {uploading ? "Caricamento..." : "Carica documento"}
@@ -113,7 +113,7 @@ export function DocumentsList() {
           </div>
         ) : (
           documents.map((doc) => (
-            <Card key={doc.id} className="bg-neutral-900/50 border-neutral-800 hover:border-green-500/50 transition-all hover:shadow-lg hover:shadow-green-500/10">
+            <Card key={doc.id} className="bg-neutral-900/50 border-neutral-800 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">{iconMap[doc.type] || "📄"}</span>

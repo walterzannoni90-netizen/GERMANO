@@ -30,7 +30,7 @@ export function FilterTrainings({ filters, onFilterChange }: FilterTrainingsProp
           placeholder="Cerca nel negozio..."
           value={filters.search}
           onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-          className="w-full h-10 rounded-full bg-neutral-800 px-4 pr-10 text-sm text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+          className="w-full h-10 rounded-full bg-neutral-800 px-4 pr-10 text-sm text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
         />
       </div>
 
@@ -40,7 +40,7 @@ export function FilterTrainings({ filters, onFilterChange }: FilterTrainingsProp
           <Button
             key={t.value}
             variant={filters.target === t.value ? "default" : "outline"}
-            className={`rounded-full text-sm whitespace-nowrap ${filters.target === t.value ? "bg-green-500 text-white" : "border-neutral-700 text-neutral-300"}`}
+            className={`rounded-full text-sm whitespace-nowrap ${filters.target === t.value ? "bg-purple-500 text-white" : "border-neutral-700 text-neutral-300"}`}
             onClick={() => onFilterChange({ ...filters, target: t.value })}
           >
             {t.label}
@@ -51,7 +51,7 @@ export function FilterTrainings({ filters, onFilterChange }: FilterTrainingsProp
           <Button
             key={l}
             variant={filters.level === l ? "default" : "outline"}
-            className={`rounded-full text-sm whitespace-nowrap ${filters.level === l ? "bg-green-500 text-white" : "border-neutral-700 text-neutral-300"}`}
+            className={`rounded-full text-sm whitespace-nowrap ${filters.level === l ? "bg-purple-500 text-white" : "border-neutral-700 text-neutral-300"}`}
             onClick={() => onFilterChange({ ...filters, level: l })}
           >
             {l}

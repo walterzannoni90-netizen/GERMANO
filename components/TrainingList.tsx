@@ -44,7 +44,7 @@ export function TrainingList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {trainings.map((training) => (
-        <Card key={training.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300">
+        <Card key={training.id} className="group overflow-hidden hover:border-purple-500/50 transition-all duration-300">
           <div className="relative h-48 overflow-hidden">
             <img
               src={training.image || "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"}
@@ -77,7 +77,7 @@ export function TrainingList() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold text-white">€{(training.price || 0).toFixed(2)}</span>
-              <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(user ? `/trainings/detail?id=${training.id}` : "/login")}>
+              <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => router.push(user ? `/trainings/detail?id=${training.id}` : "/login")}>
                 {user ? "Dettagli" : "Accedi per acquistare"}
               </Button>
             </div>

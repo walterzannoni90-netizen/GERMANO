@@ -68,7 +68,7 @@ function DetailContent() {
       <div className="text-center py-20 text-neutral-500">
         <Dumbbell className="h-16 w-16 mx-auto mb-4 text-neutral-600" />
         <p className="text-xl">Nessun programma specificato</p>
-        <Button onClick={() => router.push("/trainings")} className="mt-4 rounded-full bg-green-500 hover:bg-green-600">
+        <Button onClick={() => router.push("/trainings")} className="mt-4 rounded-full bg-purple-500 hover:bg-purple-600">
           Torna al catalogo
         </Button>
       </div>
@@ -78,7 +78,7 @@ function DetailContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+        <div className="animate-spin h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -88,7 +88,7 @@ function DetailContent() {
       <div className="text-center py-20 text-neutral-500">
         <Dumbbell className="h-16 w-16 mx-auto mb-4 text-neutral-600" />
         <p className="text-xl">Programma non trovato</p>
-        <Button onClick={() => router.push("/trainings")} className="mt-4 rounded-full bg-green-500 hover:bg-green-600">
+        <Button onClick={() => router.push("/trainings")} className="mt-4 rounded-full bg-purple-500 hover:bg-purple-600">
           Torna al catalogo
         </Button>
       </div>
@@ -132,20 +132,20 @@ function DetailContent() {
 
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 text-neutral-300">
-          <Target className="h-4 w-4 text-green-500" /> {program.goal}
+          <Target className="h-4 w-4 text-purple-500" /> {program.goal}
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 text-neutral-300">
-          <Clock className="h-4 w-4 text-green-500" /> {program.sessionsPerWeek}gg/sett · {program.totalWeeks} settimane
+          <Clock className="h-4 w-4 text-purple-500" /> {program.sessionsPerWeek}gg/sett · {program.totalWeeks} settimane
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 text-neutral-300">
-          <MapPin className="h-4 w-4 text-green-500" /> {program.target}
+          <MapPin className="h-4 w-4 text-purple-500" /> {program.target}
         </div>
       </div>
 
       <p className="text-neutral-400">{program.description}</p>
 
       {!isPurchased ? (
-        <Card className="bg-neutral-900/50 border-green-500/30">
+        <Card className="bg-neutral-900/50 border-purple-500/30">
           <CardContent className="p-8 text-center">
             <Lock className="h-12 w-12 mx-auto mb-4 text-neutral-500" />
             <h2 className="text-2xl font-bold text-white mb-2">Contenuto Bloccato</h2>
@@ -168,13 +168,13 @@ function DetailContent() {
       ) : (
         <>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <CheckCircle className="h-6 w-6 text-green-500" />
-            <span className="text-green-500 font-semibold">Programma acquistato · {days.length} giorni</span>
+            <CheckCircle className="h-6 w-6 text-purple-500" />
+            <span className="text-purple-500 font-semibold">Programma acquistato · {days.length} giorni</span>
             {program.pdfData && (
               <a
                 href={program.pdfData}
                 download={program.pdfName || "scheda-allenamento.pdf"}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500/20 transition-all text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 transition-all text-sm font-medium"
               >
                 <FileText className="h-4 w-4" />
                 Scarica PDF {program.pdfName ? `(${program.pdfName})` : ""}
@@ -189,7 +189,7 @@ function DetailContent() {
                 onClick={() => setDay(d.dayNumber - 1)}
                 className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                   day === d.dayNumber - 1
-                    ? "bg-green-500 text-black"
+                    ? "bg-purple-500 text-black"
                     : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                 }`}
               >
@@ -245,7 +245,7 @@ export default function TrainingDetailPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+        <div className="animate-spin h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full" />
       </div>
     }>
       <DetailContent />

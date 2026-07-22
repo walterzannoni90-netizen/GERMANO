@@ -15,7 +15,7 @@ const iconMap: Record<string, string> = {
 };
 
 const colorMap: Record<string, string> = {
-  workout: "text-green-500",
+  workout: "text-purple-500",
   measurement: "text-blue-500",
   consultation: "text-orange-500",
   message: "text-purple-500",

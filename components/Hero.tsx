@@ -30,14 +30,14 @@ export function Hero() {
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
           Il tuo allenamento <br />
-          <span className="text-green-500">personale</span>, ovunque tu sia
+          <span className="text-purple-500">personale</span>, ovunque tu sia
         </h1>
         <p className="text-lg md:text-xl text-neutral-300 mb-10 max-w-2xl mx-auto">
           Piattaforma completa per raggiungere i tuoi obiettivi fitness con programmi personalizzati, consulenze professionali e monitoraggio dei progressi.
         </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href={user ? "/dashboard" : "/register"}>
-              <Button className="h-14 px-8 text-lg rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/25 w-full sm:w-auto">
+              <Button className="h-14 px-8 text-lg rounded-full bg-purple-500 hover:bg-purple-600 text-white shadow-lg shadow-purple-500/25 w-full sm:w-auto">
                 {user ? "Vai alla dashboard" : "Inizia gratis"}
               </Button>
             </Link>

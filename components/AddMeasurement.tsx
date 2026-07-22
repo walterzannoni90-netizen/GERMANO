@@ -69,10 +69,10 @@ export function AddMeasurement() {
           ))}
         </div>
         <div className="flex items-center gap-4">
-          <Button onClick={handleAdd} disabled={saving || !hasAny} className="bg-green-500 hover:bg-green-600 text-white rounded-full">
+          <Button onClick={handleAdd} disabled={saving || !hasAny} className="bg-purple-500 hover:bg-purple-600 text-white rounded-full">
             {saving ? "Salvataggio..." : "Salva misurazioni"}
           </Button>
-          {msg && <p className={`text-sm ${msg.includes("Errore") ? "text-red-500" : "text-green-500"}`}>{msg}</p>}
+          {msg && <p className={`text-sm ${msg.includes("Errore") ? "text-red-500" : "text-purple-500"}`}>{msg}</p>}
         </div>
       </CardContent>
     </Card>

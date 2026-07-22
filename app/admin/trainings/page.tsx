@@ -30,7 +30,7 @@ interface TrainingItem {
 }
 
 const fileInputClass =
-  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500";
+  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-purple-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500";
 
 export default function AdminTrainings() {
   const [trainings, setTrainings] = useState<TrainingItem[]>([]);
@@ -127,7 +127,7 @@ export default function AdminTrainings() {
             <select
               value={newLevel}
               onChange={(e) => setNewLevel(e.target.value)}
-              className="h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="h-10 rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option>Principiante</option>
               <option>Intermedio</option>
@@ -147,7 +147,7 @@ export default function AdminTrainings() {
           <Button
             onClick={handleCreate}
             disabled={creating}
-            className="mt-4 bg-green-500 hover:bg-green-600 text-white rounded-full"
+            className="mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-full"
           >
             <Plus className="h-4 w-4 mr-2" />
             {creating ? "Caricamento..." : "Aggiungi allenamento"}

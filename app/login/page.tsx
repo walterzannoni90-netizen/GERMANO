@@ -46,11 +46,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-dark p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-green-500 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-black">
+          <Link href="/" className="inline-flex items-center gap-2 text-purple-500 mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500 text-black">
               <span className="font-bold text-2xl">G</span>
             </div>
-            <span className="text-3xl font-bold text-white">germanopoleselli.com</span>
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Benvenuto di nuovo!</h1>
           <p className="text-neutral-400">Accedi alla tua piattaforma fitness personale.</p>
@@ -88,13 +87,13 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <p className={`text-sm ${error.includes("inviata") ? "text-green-500" : "text-red-400"}`}>
+                <p className={`text-sm ${error.includes("inviata") ? "text-purple-500" : "text-red-400"}`}>
                   {error}
                 </p>
               )}
 
               <div className="flex items-center justify-end">
-                <button type="button" onClick={handleReset} className="text-sm text-green-500 hover:text-green-400">
+                <button type="button" onClick={handleReset} className="text-sm text-purple-500 hover:text-purple-400">
                   Hai dimenticato la password?
                 </button>
               </div>
@@ -102,7 +101,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full"
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-full"
               >
                 {loading ? "Accesso in corso..." : "Accedi"}
               </Button>
@@ -111,7 +110,7 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-neutral-400">
                 Non hai un account?{" "}
-                <Link href="/register" className="text-green-500 hover:text-green-400 font-medium">
+                <Link href="/register" className="text-purple-500 hover:text-purple-400 font-medium">
                   Registrati
                 </Link>
               </p>

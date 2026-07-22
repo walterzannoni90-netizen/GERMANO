@@ -44,7 +44,7 @@ export default function MyTrainingsPage() {
       <div className="flex flex-col items-center justify-center py-20 text-neutral-500">
         <Dumbbell className="h-16 w-16 mb-4 text-neutral-600" />
         <p className="text-xl mb-4">Accedi per vedere i tuoi allenamenti</p>
-        <Button onClick={() => router.push("/login")} className="rounded-full bg-green-500 hover:bg-green-600">
+        <Button onClick={() => router.push("/login")} className="rounded-full bg-purple-500 hover:bg-purple-600">
           Accedi ora
         </Button>
       </div>
@@ -76,7 +76,7 @@ export default function MyTrainingsPage() {
             <Dumbbell className="h-16 w-16 mb-4 text-neutral-600" />
             <p className="text-xl mb-2">Nessun allenamento acquistato</p>
             <p className="mb-6 text-sm">Acquista il tuo primo programma dal catalogo</p>
-            <Button onClick={() => router.push("/trainings")} className="rounded-full bg-green-500 hover:bg-green-600">
+            <Button onClick={() => router.push("/trainings")} className="rounded-full bg-purple-500 hover:bg-purple-600">
               Vedi catalogo
             </Button>
           </CardContent>
@@ -93,7 +93,7 @@ export default function MyTrainingsPage() {
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {myPrograms.map(program => (
-          <Card key={program.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300 cursor-pointer" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
+          <Card key={program.id} className="group overflow-hidden hover:border-purple-500/50 transition-all duration-300 cursor-pointer" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
             <div className="relative h-48 overflow-hidden">
               <img
                 src={program.image || IMAGE_FALLBACK}
@@ -114,10 +114,10 @@ export default function MyTrainingsPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-3 text-sm text-neutral-400 mb-4">
-                <span className="flex items-center gap-1"><Target className="h-4 w-4 text-green-500" />{program.goal}</span>
-                <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-green-500" />{program.target}</span>
+                <span className="flex items-center gap-1"><Target className="h-4 w-4 text-purple-500" />{program.goal}</span>
+                <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-purple-500" />{program.target}</span>
               </div>
-              <Button className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={(e) => { e.stopPropagation();                     router.push(`/trainings/detail?id=${program.id}`); }}>
+              <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={(e) => { e.stopPropagation();                     router.push(`/trainings/detail?id=${program.id}`); }}>
                 Visualizza scheda <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </CardContent>

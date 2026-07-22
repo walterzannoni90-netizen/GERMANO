@@ -42,7 +42,7 @@ export default function AdminLayout({
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-dark">
-        <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+        <div className="animate-spin h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function AdminLayout({
           <Button
             onClick={handleMakeAdmin}
             disabled={promoting}
-            className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8"
+            className="bg-purple-500 hover:bg-purple-600 text-white rounded-full px-8"
           >
             {promoting ? "Attivazione..." : "Diventa amministratore"}
           </Button>

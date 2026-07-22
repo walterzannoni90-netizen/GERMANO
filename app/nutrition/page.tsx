@@ -93,7 +93,7 @@ export default function NutritionPage() {
             const isAdmin = userData?.role === "admin";
             const isPurchased = isAdmin || purchased.includes(program.id!);
             return (
-              <Card key={program.id} className="group overflow-hidden hover:border-green-500/50 transition-all duration-300">
+              <Card key={program.id} className="group overflow-hidden hover:border-purple-500/50 transition-all duration-300">
                 <div className="relative h-48 overflow-hidden">
                   <img src={program.image || IMAGE_FALLBACK} alt={program.title} className="h-full w-full object-cover" />
                   <div className="absolute top-3 right-3 flex gap-2">
@@ -108,7 +108,7 @@ export default function NutritionPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3 text-sm text-neutral-400 mb-4">
-                    <span className="flex items-center gap-1"><Target className="h-4 w-4 text-green-500" />{program.target || "Tutti"}</span>
+                    <span className="flex items-center gap-1"><Target className="h-4 w-4 text-purple-500" />{program.target || "Tutti"}</span>
                   </div>
                   <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{program.description}</p>
                   <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export default function NutritionPage() {
                       {isPurchased ? "✓ Acquistato" : `€${(program.price || 40).toFixed(2)}`}
                     </span>
                     {isPurchased ? (
-                      <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
+                      <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => router.push(`/trainings/detail?id=${program.id}`)}>
                         Vedi piano
                       </Button>
                     ) : (

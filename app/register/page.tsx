@@ -53,7 +53,7 @@ export default function RegisterPage() {
             Clicca il link nell&apos;email per attivare il tuo account e accedere.
           </p>
           <Link href="/login">
-            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8">
+            <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full px-8">
               Vai al login
             </Button>
           </Link>
@@ -66,11 +66,10 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-dark p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-green-500 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-black">
+          <Link href="/" className="inline-flex items-center gap-2 text-purple-500 mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500 text-black">
               <span className="font-bold text-2xl">G</span>
             </div>
-            <span className="text-3xl font-bold text-white">germanopoleselli.com</span>
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Inizia il tuo viaggio!</h1>
           <p className="text-neutral-400">Crea il tuo account e raggiungi i tuoi obiettivi fitness.</p>
@@ -120,7 +119,7 @@ export default function RegisterPage() {
                 </p>
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full">
+              <Button type="submit" disabled={loading} className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-full">
                 {loading ? "Registrazione in corso..." : "Registrati"}
               </Button>
             </form>
@@ -128,7 +127,7 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-neutral-400">
                 Hai già un account?{" "}
-                <Link href="/login" className="text-green-500 hover:text-green-400 font-medium">
+                <Link href="/login" className="text-purple-500 hover:text-purple-400 font-medium">
                   Accedi
                 </Link>
               </p>

@@ -17,7 +17,7 @@ interface Props {
 
 export function ProgramCard({ program, isPurchased, onPurchase, onView }: Props) {
   return (
-    <Card className="group overflow-hidden hover:border-green-500/50 transition-all duration-300">
+    <Card className="group overflow-hidden hover:border-purple-500/50 transition-all duration-300">
       <div className="relative h-48 overflow-hidden">
         <img
           src={program.image || IMAGE_FALLBACK}
@@ -51,15 +51,15 @@ export function ProgramCard({ program, isPurchased, onPurchase, onView }: Props)
       <CardContent>
         <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-400 mb-4">
           <span className="flex items-center gap-1">
-            <Target className="h-4 w-4 text-green-500" />
+            <Target className="h-4 w-4 text-purple-500" />
             {program.goal}
           </span>
           <span className="flex items-center gap-1">
-            <Clock className="h-4 w-4 text-green-500" />
+            <Clock className="h-4 w-4 text-purple-500" />
             {program.sessionsPerWeek}gg/sett · {program.totalWeeks} sett
           </span>
           <span className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 text-green-500" />
+            <MapPin className="h-4 w-4 text-purple-500" />
             {program.target}
           </span>
         </div>
@@ -69,11 +69,11 @@ export function ProgramCard({ program, isPurchased, onPurchase, onView }: Props)
             {isPurchased ? "✓ Acquistato" : `€${(program.price || 0).toFixed(2)}`}
           </span>
           {isPurchased ? (
-            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => onView(program.id!)}>
+            <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => onView(program.id!)}>
               <Eye className="h-4 w-4 mr-2" /> Vedi Scheda
             </Button>
           ) : (
-            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full" onClick={() => onPurchase(program.id!)}>
+            <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-full" onClick={() => onPurchase(program.id!)}>
               Acquista ora
             </Button>
           )}

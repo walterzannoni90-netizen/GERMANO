@@ -22,10 +22,10 @@ const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop";
 
 const selectClass =
-  "h-10 w-full rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-green-500";
+  "h-10 w-full rounded-full bg-neutral-800 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500";
 
 const fileInputClass =
-  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500";
+  "h-10 w-full rounded-full bg-neutral-800 px-4 py-2 text-sm text-neutral-300 file:mr-3 file:rounded-full file:border-0 file:bg-purple-500 file:px-3 file:py-1 file:text-xs file:font-medium file:text-white hover:file:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500";
 
 interface ProgramForm {
   title: string;
@@ -238,7 +238,7 @@ export default function AdminPrograms() {
         {!showForm && (
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+            className="bg-purple-500 hover:bg-purple-600 text-white rounded-full"
           >
             <Plus className="h-4 w-4 mr-2" /> Nuovo programma
           </Button>
@@ -330,7 +330,7 @@ export default function AdminPrograms() {
                   className={fileInputClass}
                 />
                 {pdfFileName && (
-                  <p className="text-xs text-green-500 mt-1">PDF: {pdfFileName}</p>
+                  <p className="text-xs text-purple-500 mt-1">PDF: {pdfFileName}</p>
                 )}
               </div>
             </div>
@@ -341,7 +341,7 @@ export default function AdminPrograms() {
                 onChange={(e) => setField("description", e.target.value)}
                 rows={3}
                 placeholder="Descrivi il programma..."
-                className="w-full rounded-2xl bg-neutral-800 px-4 py-3 text-sm text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-2xl bg-neutral-800 px-4 py-3 text-sm text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -349,7 +349,7 @@ export default function AdminPrograms() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold text-white">Giorni ed esercizi</h3>
-                <Button variant="ghost" size="sm" onClick={addDay} className="text-green-500">
+                <Button variant="ghost" size="sm" onClick={addDay} className="text-purple-500">
                   <Plus className="h-4 w-4 mr-1" /> Aggiungi giorno
                 </Button>
               </div>
@@ -359,7 +359,7 @@ export default function AdminPrograms() {
               {days.map((day, dayIdx) => (
                 <div key={dayIdx} className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-green-500 whitespace-nowrap">
+                    <span className="text-sm font-semibold text-purple-500 whitespace-nowrap">
                       Giorno {day.dayNumber}
                     </span>
                     <Input
@@ -412,7 +412,7 @@ export default function AdminPrograms() {
                       />
                     </div>
                   ))}
-                  <Button variant="ghost" size="sm" onClick={() => addExercise(dayIdx)} className="text-green-500">
+                  <Button variant="ghost" size="sm" onClick={() => addExercise(dayIdx)} className="text-purple-500">
                     <Plus className="h-4 w-4 mr-1" /> Aggiungi esercizio
                   </Button>
                 </div>
@@ -426,7 +426,7 @@ export default function AdminPrograms() {
               <Button
                 onClick={handleSave}
                 disabled={saving || !form.title}
-                className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+                className="bg-purple-500 hover:bg-purple-600 text-white rounded-full"
               >
                 {saving ? "Caricamento..." : editingId ? "Salva modifiche" : "Crea programma"}
               </Button>

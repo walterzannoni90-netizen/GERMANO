@@ -14,7 +14,7 @@ export default function AdminDashboard() {
 
   const cards = [
     { title: "Utenti totali", value: stats.totalUsers, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { title: "Allenamenti", value: stats.totalTrainings, icon: Dumbbell, color: "text-green-500", bg: "bg-green-500/10" },
+    { title: "Allenamenti", value: stats.totalTrainings, icon: Dumbbell, color: "text-purple-500", bg: "bg-purple-500/10" },
     { title: "Ordini totali", value: stats.totalOrders, icon: CreditCard, color: "text-orange-500", bg: "bg-orange-500/10" },
     { title: "Fatturato", value: `€${stats.totalRevenue.toFixed(2)}`, icon: TrendingUp, color: "text-purple-500", bg: "bg-purple-500/10" },
   ];
